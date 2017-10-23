@@ -173,7 +173,7 @@ class TwoDimTransformController {
             }
 
             let t: number = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
-            this.interpolant = Vector2.lerp(this.p1.value, Vector2.add(this.p1.value, this.p1.next.value), t);
+            this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
             Vector2.addAssign(this.transformed, this.interpolant);
         }
     }
@@ -196,10 +196,8 @@ class TwoDimTransformAnimator {
 
         let timeline: TwoDimTransformTimeline = new TwoDimTransformTimeline();
         timeline.createPoint(0, new Vector2(0,0));
-        timeline.createPoint(1, new Vector2(50,0));
-        timeline.createPoint(3, new Vector2(-50,0));
-        timeline.createPoint(4, new Vector2(50,0));
-        timeline.createPoint(5, new Vector2(-50,0));
+        timeline.createPoint(2, new Vector2(250,0));
+        timeline.createPoint(4, new Vector2(-250,0));
 
 
         this.positionTransformController =
