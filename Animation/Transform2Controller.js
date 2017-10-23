@@ -132,6 +132,9 @@ var TwoDimTransformAnimator = (function () {
         timeline.createPoint(0, new Vector2(0, 0));
         timeline.createPoint(2, new Vector2(250, 0));
         timeline.createPoint(4, new Vector2(-250, 0));
+        timeline.createPoint(5, new Vector2(50, 0));
+        timeline.createPoint(7, new Vector2(-200, 50));
+        timeline.createPoint(9, new Vector2(50, 100));
         this.positionTransformController =
             new TwoDimTransformController(timeline, 0 /* Lerp */, transformable.position);
         this.go = false;
@@ -146,7 +149,8 @@ var TwoDimTransformAnimator = (function () {
         if (!this.go)
             return;
         this.elapsedTime = (performance.now() * 0.001) - this.startTime;
-        //this.elapsedTime = 6 - this.elapsedTime;
+        // if(this.elapsedTime > 2)
+        //this.elapsedTime = 4 - this.elapsedTime;
         this.positionTransformController.transform(this.elapsedTime);
         Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
     };

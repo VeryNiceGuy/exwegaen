@@ -199,6 +199,10 @@ class TwoDimTransformAnimator {
         timeline.createPoint(2, new Vector2(250,0));
         timeline.createPoint(4, new Vector2(-250,0));
 
+        timeline.createPoint(5, new Vector2(50,0));
+        timeline.createPoint(7, new Vector2(-200,50));
+        timeline.createPoint(9, new Vector2(50,100));
+
 
         this.positionTransformController =
             new TwoDimTransformController(
@@ -218,7 +222,9 @@ class TwoDimTransformAnimator {
     animate(): void {
         if(!this.go) return;
         this.elapsedTime = (performance.now() * 0.001) - this.startTime;
-        //this.elapsedTime = 6 - this.elapsedTime;
+
+       // if(this.elapsedTime > 2)
+            //this.elapsedTime = 4 - this.elapsedTime;
 
         this.positionTransformController.transform(this.elapsedTime);
         Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
