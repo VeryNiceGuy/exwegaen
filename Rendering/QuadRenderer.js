@@ -202,14 +202,5 @@ function start() {
         quadRenderer = new QuadRenderer(gl, screen.width, screen.height, image, 50);
         render();
     });
-    var v1 = new Vector2(1, 0);
-    var v2 = new Vector2(0, 1);
-    var result = Vector2.slerp(v1, v2, 0.5);
-    var a = [0, -1, -1, -1];
-    var b = [4, 4, 4, 4];
-    var c = [-1, -1, -1, 0];
-    var d = [5, 5, 10, 23];
-    var f = new Array(4);
-    solve(a, b, c, d, f);
 }
 //# sourceMappingURL=QuadRenderer.js.map

@@ -1,71 +1,157 @@
-var Transform2Animation = (function () {
-    function Transform2Animation(positionTimeline, rotationTimeline, scaleTimeline) {
-        if (positionTimeline === void 0) { positionTimeline = new Timeline(); }
-        if (rotationTimeline === void 0) { rotationTimeline = new Timeline(); }
-        if (scaleTimeline === void 0) { scaleTimeline = new Timeline(); }
+var TwoDimTransformAnimation = (function () {
+    function TwoDimTransformAnimation(positionTimeline, rotationTimeline, scaleTimeline) {
+        if (positionTimeline === void 0) { positionTimeline = new TwoDimTransformTimeline(); }
+        if (rotationTimeline === void 0) { rotationTimeline = new TwoDimTransformTimeline(); }
+        if (scaleTimeline === void 0) { scaleTimeline = new TwoDimTransformTimeline(); }
         this.positionTimeline = positionTimeline;
         this.rotationTimeline = rotationTimeline;
         this.scaleTimeline = scaleTimeline;
     }
-    return Transform2Animation;
+    return TwoDimTransformAnimation;
 }());
-var Vector2TransformInterpolationType;
-(function (Vector2TransformInterpolationType) {
-    Vector2TransformInterpolationType[Vector2TransformInterpolationType["Lerp"] = 0] = "Lerp";
-    Vector2TransformInterpolationType[Vector2TransformInterpolationType["Slerp"] = 1] = "Slerp";
-})(Vector2TransformInterpolationType || (Vector2TransformInterpolationType = {}));
-var Vector2TransformController = (function () {
-    function Vector2TransformController(timeline, original, interpolationType) {
-        this.timepoint1 = new Timepoint(0, new Vector2(0, 0));
-        this.timepoint2 = new Timepoint(0, new Vector2(0, 0));
-        this.timeline = timeline;
-        this.original = original;
-        this.segmentIndex = 0;
-        this.originalCopy = new Vector2(this.original.x, this.original.y);
-        this.interpolationType = interpolationType;
+var TwoDimTransformPoint = (function () {
+    function TwoDimTransformPoint(time, value, next, prev) {
+        if (next === void 0) { next = null; }
+        if (prev === void 0) { prev = null; }
+        this.time = time;
+        this.value = value;
+        this.next = next;
+        this.prev = prev;
     }
-    Vector2TransformController.prototype.transform = function (time) {
-        if (time >= 0 && time <= this.timeline.getLastPoint().time) {
-            this.segmentIndex = this.timeline.getNextSegmentIndex(time, this.segmentIndex);
-            this.timeline.getSegmentPoints(this.segmentIndex, this.timepoint1, this.timepoint2);
-            var t = (time - this.timepoint1.time) / (this.timepoint2.time - this.timepoint1.time);
-            if (this.interpolationType == Vector2TransformInterpolationType.Lerp) {
-                this.result = Vector2.lerp(this.timepoint1.value, this.timepoint2.value, t);
-                Vector2.assign(this.original, Vector2.add(this.result, this.originalCopy));
+    TwoDimTransformPoint.findPointAtLesserTime = function (time, start) {
+        var p = start.next;
+        while (p) {
+            if (p.time > time)
+                return p;
+        }
+        return null;
+    };
+    TwoDimTransformPoint.findPointAtGreaterTime = function (time, start) {
+        var p = start.next;
+        while (p) {
+            if (p.time > time)
+                return p;
+        }
+        return null;
+    };
+    return TwoDimTransformPoint;
+}());
+var TwoDimTransformTimeline = (function () {
+    function TwoDimTransformTimeline() {
+        this.numberOfPoints = 0;
+        this.firstPoint = null;
+        this.lastPoint = null;
+    }
+    TwoDimTransformTimeline.prototype.getNumberOfPoints = function () {
+        return this.numberOfPoints;
+    };
+    TwoDimTransformTimeline.prototype.getFirstPoint = function () {
+        return this.firstPoint;
+    };
+    TwoDimTransformTimeline.prototype.getLastPoint = function () {
+        return this.lastPoint;
+    };
+    TwoDimTransformTimeline.linkTwoPoints = function (left, right) {
+        left.next = right;
+        right.prev = left;
+    };
+    TwoDimTransformTimeline.linkThreePoints = function (left, middle, right) {
+        left.next = middle;
+        middle.prev = left;
+        middle.next = right;
+        right.prev = middle;
+    };
+    TwoDimTransformTimeline.prototype.createPoint = function (time, value) {
+        var newPoint = new TwoDimTransformPoint(time, value);
+        if (this.getNumberOfPoints()) {
+            if (time > this.getLastPoint().time) {
+                TwoDimTransformTimeline.linkTwoPoints(this.getLastPoint(), newPoint);
+                this.lastPoint = newPoint;
             }
             else {
-                this.result = Vector2.slerp(this.timepoint1.value, this.timepoint2.value, t);
-                this.original.x = this.originalCopy.x * this.result.x - this.originalCopy.y * this.result.y;
-                this.original.y = this.originalCopy.x * this.result.y + this.result.x * this.originalCopy.y;
+                var pointAtGreaterTime = TwoDimTransformPoint.findPointAtGreaterTime(time, this.getFirstPoint());
+                TwoDimTransformTimeline.linkThreePoints(pointAtGreaterTime.prev, newPoint, pointAtGreaterTime);
             }
         }
+        else {
+            this.firstPoint = new TwoDimTransformPoint(time, value);
+            this.lastPoint = this.getFirstPoint();
+        }
+        ++this.numberOfPoints;
+        return null;
     };
-    return Vector2TransformController;
+    return TwoDimTransformTimeline;
 }());
-var Transform2Animator = (function () {
-    function Transform2Animator(animation, transformable) {
+var TwoDimTransformController = (function () {
+    function TwoDimTransformController(timeline, interpolationType, value) {
+        this.timeline = timeline;
+        this.interpolationType = interpolationType;
+        this.value = value;
+        this.p1 = timeline.getFirstPoint();
+        this.interpolant = new Vector2();
+        this.transformed = value;
+    }
+    TwoDimTransformController.prototype.transform = function (time) {
+        if (time >= 0 && time <= this.timeline.getLastPoint().time) {
+            Vector2.subtractAssign(this.transformed, this.interpolant);
+            this.interpolant = new Vector2();
+            if (time < this.p1.time) {
+                var p1 = this.p1.prev;
+                while (p1) {
+                    Vector2.subtractAssign(this.transformed, p1.prev.value);
+                    if (p1.time <= time) {
+                        break;
+                    }
+                    p1 = p1.prev;
+                }
+                this.p1 = p1;
+            }
+            else if (time > this.p1.next.time) {
+                var p2 = this.p1.next.next;
+                while (p2) {
+                    Vector2.addAssign(this.transformed, p2.prev.value);
+                    if (p2.time >= time) {
+                        break;
+                    }
+                    p2 = p2.next;
+                }
+                this.p1 = p2.prev;
+            }
+            var t = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
+            this.interpolant = Vector2.lerp(this.p1.value, Vector2.add(this.p1.value, this.p1.next.value), t);
+            Vector2.addAssign(this.transformed, this.interpolant);
+        }
+    };
+    return TwoDimTransformController;
+}());
+var TwoDimTransformAnimator = (function () {
+    function TwoDimTransformAnimator(animation, transformable) {
         this.animation = animation;
         this.transformable = transformable;
-        this.positionTransformController = new Vector2TransformController(animation.positionTimeline, transformable.position, Vector2TransformInterpolationType.Lerp);
-        this.rotationTransformController = new Vector2TransformController(animation.rotationTimeline, transformable.rotation, Vector2TransformInterpolationType.Slerp);
-        this.scaleTransformController = new Vector2TransformController(animation.scaleTimeline, transformable.scale, Vector2TransformInterpolationType.Lerp);
+        var timeline = new TwoDimTransformTimeline();
+        timeline.createPoint(0, new Vector2(0, 0));
+        timeline.createPoint(1, new Vector2(50, 0));
+        timeline.createPoint(3, new Vector2(-50, 0));
+        timeline.createPoint(4, new Vector2(50, 0));
+        timeline.createPoint(5, new Vector2(-50, 0));
+        this.positionTransformController =
+            new TwoDimTransformController(timeline, 0 /* Lerp */, transformable.position);
+        this.go = false;
     }
-    Transform2Animator.prototype.startAnimation = function () {
+    TwoDimTransformAnimator.prototype.startAnimation = function () {
+        this.go = true;
         this.startTime = performance.now() * 0.001;
+        //this.positionTransformController.transform(6);
     };
-    Transform2Animator.prototype.stopAnimation = function () { };
-    Transform2Animator.prototype.animate = function () {
+    TwoDimTransformAnimator.prototype.stopAnimation = function () { };
+    TwoDimTransformAnimator.prototype.animate = function () {
+        if (!this.go)
+            return;
         this.elapsedTime = (performance.now() * 0.001) - this.startTime;
-        if (this.animation.positionTimeline.getNumberOfPoints()) {
-            this.positionTransformController.transform(this.elapsedTime);
-        }
-        if (this.animation.rotationTimeline.getNumberOfPoints()) {
-            this.rotationTransformController.transform(this.elapsedTime);
-        }
-        if (this.animation.scaleTimeline.getNumberOfPoints()) {
-            this.scaleTransformController.transform(this.elapsedTime);
-        }
+        //this.elapsedTime = 6 - this.elapsedTime;
+        this.positionTransformController.transform(this.elapsedTime);
+        Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
     };
-    return Transform2Animator;
+    return TwoDimTransformAnimator;
 }());
 //# sourceMappingURL=Transform2Controller.js.map

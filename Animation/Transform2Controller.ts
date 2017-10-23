@@ -4,95 +4,225 @@
     scale: Vector2;
 }
 
-class Transform2Animation {
+interface Transformable3 {
+    position: Vector3;
+    rotation: Quaternion;
+    scale: Vector3;
+}
+
+class TwoDimTransformAnimation {
     constructor(
-        public positionTimeline: Timeline<Vector2> = new Timeline<Vector2>(),
-        public rotationTimeline: Timeline<Vector2> = new Timeline<Vector2>(),
-        public scaleTimeline: Timeline<Vector2> = new Timeline<Vector2>()) {}
+        public positionTimeline: TwoDimTransformTimeline = new TwoDimTransformTimeline(),
+        public rotationTimeline: TwoDimTransformTimeline = new TwoDimTransformTimeline(),
+        public scaleTimeline: TwoDimTransformTimeline = new TwoDimTransformTimeline()) {}
 }
 
-enum Vector2TransformInterpolationType {
-    Lerp, Slerp 
+class TwoDimTransformPoint {
+    constructor(
+        public time: number,
+        public value: Vector2,
+        public next: TwoDimTransformPoint = null,
+        public prev: TwoDimTransformPoint = null){}
+
+    static findPointAtLesserTime(
+        time: number, start: TwoDimTransformPoint): TwoDimTransformPoint {
+
+        let p: TwoDimTransformPoint = start.next;
+        while(p){
+            if(p.time > time)
+                return p;
+        }
+
+        return null;
+    }
+
+    static findPointAtGreaterTime(
+        time: number, start: TwoDimTransformPoint): TwoDimTransformPoint {
+
+        let p: TwoDimTransformPoint = start.next;
+        while(p){
+            if(p.time > time)
+                return p;
+        }
+
+        return null;
+    }
 }
 
-class Vector2TransformController {
-    timeline: Timeline<Vector2>;
-    segmentIndex: number;
-    timepoint1: Timepoint<Vector2>;
-    timepoint2: Timepoint<Vector2>;
-    original: Vector2;
-    originalCopy: Vector2;
-    result: Vector2;
-    interpolationType: Vector2TransformInterpolationType;
+class TwoDimTransformTimeline {
+    private numberOfPoints: number;
+    private firstPoint: TwoDimTransformPoint;
+    private lastPoint: TwoDimTransformPoint;
+
+    constructor() {
+        this.numberOfPoints = 0;
+        this.firstPoint = null;
+        this.lastPoint = null;
+    }
+
+    getNumberOfPoints(): number {
+        return this.numberOfPoints;
+    }
+
+    getFirstPoint(): TwoDimTransformPoint {
+        return this.firstPoint;
+    }
+
+    getLastPoint(): TwoDimTransformPoint {
+        return this.lastPoint;
+    }
+
+    static linkTwoPoints(
+        left: TwoDimTransformPoint,
+        right: TwoDimTransformPoint): void {
+
+        left.next = right;
+        right.prev = left;
+    }
+
+    static linkThreePoints(
+        left: TwoDimTransformPoint,
+        middle: TwoDimTransformPoint,
+        right: TwoDimTransformPoint): void {
+
+        left.next = middle;
+        middle.prev = left;
+        middle.next = right;
+        right.prev = middle;
+    }
+
+    createPoint(time: number, value: Vector2): TwoDimTransformPoint {
+        let newPoint: TwoDimTransformPoint =
+            new TwoDimTransformPoint(time, value);
+
+        if (this.getNumberOfPoints())
+        {
+            if(time > this.getLastPoint().time) {
+                TwoDimTransformTimeline.linkTwoPoints(
+                    this.getLastPoint(), newPoint);
+                this.lastPoint = newPoint;
+            } else {
+                let pointAtGreaterTime: TwoDimTransformPoint =
+                    TwoDimTransformPoint.findPointAtGreaterTime(time, this.getFirstPoint());
+
+                TwoDimTransformTimeline.linkThreePoints(
+                    pointAtGreaterTime.prev, newPoint, pointAtGreaterTime)
+            }
+        }
+        else
+        {
+            this.firstPoint = new TwoDimTransformPoint(time, value);
+            this.lastPoint = this.getFirstPoint();
+        }
+
+        ++this.numberOfPoints;
+
+        return null;
+    }
+}
+
+const enum InterpolationType {
+    Lerp, Slerp
+}
+
+class TwoDimTransformController {
+    private p1: TwoDimTransformPoint;
+    private interpolant: Vector2;
+    public transformed: Vector2;
+
+    constructor(
+        private timeline: TwoDimTransformTimeline,
+        private interpolationType: InterpolationType,
+        private value: Vector2) {
+
+        this.p1 = timeline.getFirstPoint();
+        this.interpolant = new Vector2();
+        this.transformed = value;
+    }
 
     transform(time: number) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
-            this.segmentIndex = this.timeline.getNextSegmentIndex(time, this.segmentIndex);
-            this.timeline.getSegmentPoints(this.segmentIndex, this.timepoint1, this.timepoint2);
-            let t: number = (time - this.timepoint1.time) / (this.timepoint2.time - this.timepoint1.time);
+            Vector2.subtractAssign(this.transformed, this.interpolant);
+            this.interpolant = new Vector2();
 
-            if (this.interpolationType == Vector2TransformInterpolationType.Lerp) {
-                this.result = Vector2.lerp(this.timepoint1.value, this.timepoint2.value, t);
-                Vector2.assign(this.original, Vector2.add(this.result, this.originalCopy));
-            } else {
-                this.result = Vector2.slerp(this.timepoint1.value, this.timepoint2.value, t);
-                this.original.x = this.originalCopy.x * this.result.x - this.originalCopy.y * this.result.y;
-                this.original.y = this.originalCopy.x * this.result.y + this.result.x * this.originalCopy.y;
+            if(time < this.p1.time) {
+                let p1: TwoDimTransformPoint = this.p1.prev;
+                while(p1) {
+                    Vector2.subtractAssign(this.transformed, p1.prev.value);
+
+                    if(p1.time <= time) { /*search for new p1*/
+                        break;
+                    }
+
+                    p1 = p1.prev;
+                }
+
+                this.p1 = p1;
+            } else if(time > this.p1.next.time) {
+                let p2: TwoDimTransformPoint = this.p1.next.next;
+                while(p2) {
+                    Vector2.addAssign(this.transformed, p2.prev.value);
+
+                    if(p2.time >= time) { /*search for new p2*/
+                        break;
+                    }
+
+                    p2 = p2.next;
+                }
+                this.p1 = p2.prev;
             }
+
+            let t: number = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
+            this.interpolant = Vector2.lerp(this.p1.value, Vector2.add(this.p1.value, this.p1.next.value), t);
+            Vector2.addAssign(this.transformed, this.interpolant);
         }
-    }
-
-    constructor(timeline: Timeline<Vector2>, original: Vector2, interpolationType: Vector2TransformInterpolationType) {
-        this.timepoint1 = new Timepoint<Vector2>(0, new Vector2(0, 0));
-        this.timepoint2 = new Timepoint<Vector2>(0, new Vector2(0, 0));
-
-        this.timeline = timeline;
-        this.original = original;
-        this.segmentIndex = 0;
-        this.originalCopy = new Vector2(this.original.x, this.original.y);
-        this.interpolationType = interpolationType;
     }
 }
 
-class Transform2Animator {
-    animation: Transform2Animation;
+class TwoDimTransformAnimator {
+    animation: TwoDimTransformAnimation;
     transformable: Transformable2;
 
     startTime: number;
     elapsedTime: number;
 
-    positionTransformController: Vector2TransformController;
-    rotationTransformController: Vector2TransformController;
-    scaleTransformController: Vector2TransformController;
+    positionTransformController: TwoDimTransformController;
 
-    constructor(animation: Transform2Animation, transformable: Transformable2) {
+    go: boolean;
+
+    constructor(animation: TwoDimTransformAnimation, transformable: Transformable2) {
         this.animation = animation;
         this.transformable = transformable;
 
-        this.positionTransformController = new Vector2TransformController(animation.positionTimeline, transformable.position, Vector2TransformInterpolationType.Lerp);
-        this.rotationTransformController = new Vector2TransformController(animation.rotationTimeline, transformable.rotation, Vector2TransformInterpolationType.Slerp);
-        this.scaleTransformController = new Vector2TransformController(animation.scaleTimeline, transformable.scale, Vector2TransformInterpolationType.Lerp);
+        let timeline: TwoDimTransformTimeline = new TwoDimTransformTimeline();
+        timeline.createPoint(0, new Vector2(0,0));
+        timeline.createPoint(1, new Vector2(50,0));
+        timeline.createPoint(3, new Vector2(-50,0));
+        timeline.createPoint(4, new Vector2(50,0));
+        timeline.createPoint(5, new Vector2(-50,0));
+
+
+        this.positionTransformController =
+            new TwoDimTransformController(
+                timeline, InterpolationType.Lerp, transformable.position);
+
+        this.go = false;
     }
 
     startAnimation(): void {
+        this.go = true;
         this.startTime = performance.now() * 0.001;
+        //this.positionTransformController.transform(6);
     }
 
     stopAnimation(): void { }
 
     animate(): void {
+        if(!this.go) return;
         this.elapsedTime = (performance.now() * 0.001) - this.startTime;
+        //this.elapsedTime = 6 - this.elapsedTime;
 
-        if (this.animation.positionTimeline.getNumberOfPoints()) {
-            this.positionTransformController.transform(this.elapsedTime);
-        }
-
-        if (this.animation.rotationTimeline.getNumberOfPoints()) {
-            this.rotationTransformController.transform(this.elapsedTime);
-        }
-
-        if (this.animation.scaleTimeline.getNumberOfPoints()) {
-            this.scaleTransformController.transform(this.elapsedTime);
-        }
+        this.positionTransformController.transform(this.elapsedTime);
+        Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
     }
 }

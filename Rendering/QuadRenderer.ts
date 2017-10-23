@@ -273,15 +273,4 @@ function start(): void {
    });
 
 
-    let v1: Vector2 = new Vector2(1, 0);
-    let v2: Vector2 = new Vector2(0, 1);
-    let result: Vector2 = Vector2.slerp(v1, v2, 0.5);
-
-    let a: number[] = [ 0, -1, -1, -1];
-    let b: number[] = [ 4,  4,  4,  4 ];
-    let c: number[] = [-1, -1, -1, 0 ];
-    let d: number[] = [5, 5, 10, 23];
-    let f: Array<number> = new Array<number>(4);
-
-    solve(a, b, c, d, f);
 }

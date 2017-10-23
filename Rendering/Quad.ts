@@ -9,7 +9,7 @@
     rotation: Vector2;
     scale: Vector2;
 
-    transform2Animator: Transform2Animator;
+    transform2Animator: TwoDimTransformAnimator;
 
     constructor(
         position: Vector2,
@@ -27,35 +27,7 @@
 
         this.rotation = new Vector2(1, 0);
         this.scale = new Vector2(1, 1);
-
-        let points1: Timepoint<Vector2>[] = [
-            new Timepoint<Vector2>(0.0, new Vector2(0.0, 0.0)),
-            new Timepoint<Vector2>(1.0, new Vector2(50.0, 50.0)),
-            new Timepoint<Vector2>(2.0, new Vector2(30.0, 20.0)),
-            new Timepoint<Vector2>(3.0, new Vector2(100.0, 10.0)),
-            new Timepoint<Vector2>(4.0, new Vector2(60.0, 60.0)),
-            new Timepoint<Vector2>(5.0, new Vector2(10.0, 10.0))];
-
-        let a3: number = 45 * Math.PI / 180;
-        let a4: number = -90 * Math.PI / 180;
-
-
-        let points2: Timepoint<Vector2>[] = [
-            new Timepoint<Vector2>(0.0, new Vector2(1.0, 0.0)),
-            new Timepoint<Vector2>(2.0, new Vector2(Math.cos(a3), Math.sin(a3))),
-            new Timepoint<Vector2>(5.0, new Vector2(Math.cos(a4), Math.sin(a4)))];
-
-        let points3: Timepoint<Vector2>[] = [
-            new Timepoint<Vector2>(0.0, new Vector2(0.0, 0.0)),
-            new Timepoint<Vector2>(2.0, new Vector2(1.0, 1.0)),
-            new Timepoint<Vector2>(5.0, new Vector2(0.0, 0.0))];
-
-        let timeline1: Timeline<Vector2> = new Timeline<Vector2>(points1);
-        let timeline2: Timeline<Vector2> = new Timeline<Vector2>(points2);
-        let timeline3: Timeline<Vector2> = new Timeline<Vector2>(points3);
-
-        let animation: Transform2Animation = new Transform2Animation(timeline1, timeline2, timeline3);
-        this.transform2Animator = new Transform2Animator(animation, this);
+        this.transform2Animator = new TwoDimTransformAnimator(null, this);
     }
 
     containsMousePointer(mousePointerPosition: Vector2): boolean {
