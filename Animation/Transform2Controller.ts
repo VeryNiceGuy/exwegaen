@@ -136,19 +136,33 @@ class TwoDimTransformController {
         private value: Vector2) {
 
         this.p1 = timeline.getFirstPoint();
-        this.interpolant = new Vector2();
+        this.interpolant = new Vector2(1,0);
         this.transformed = value;
     }
 
     transform(time: number) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
-            Vector2.subtractAssign(this.transformed, this.interpolant);
-            this.interpolant = new Vector2();
+            if(this.interpolationType == InterpolationType.Lerp) {
+                Vector2.subtractAssign(this.transformed, this.interpolant);
+            } else {
+                this.transformed =
+                    new Vector2(
+                        this.transformed.x * this.interpolant.x - this.transformed.y * -this.interpolant.y,
+                        this.transformed.x * -this.interpolant.y + this.interpolant.x * this.transformed.y);
+            }
+            this.interpolant = new Vector2(1,0);
 
             if(time < this.p1.time) {
                 let p1: TwoDimTransformPoint = this.p1.prev;
                 while(p1) {
-                    Vector2.subtractAssign(this.transformed, p1.prev.value);
+                    if(this.interpolationType == InterpolationType.Lerp) {
+                        Vector2.subtractAssign(this.transformed, p1.prev.value);
+                    } else {
+                        this.transformed =
+                            new Vector2(
+                                this.transformed.x * p1.prev.value.x - this.transformed.y * -p1.prev.value.y,
+                                this.transformed.x * -p1.prev.value.y + p1.prev.value.x * this.transformed.y);
+                    }
 
                     if(p1.time <= time) { /*search for new p1*/
                         break;
@@ -161,7 +175,14 @@ class TwoDimTransformController {
             } else if(time > this.p1.next.time) {
                 let p2: TwoDimTransformPoint = this.p1.next.next;
                 while(p2) {
-                    Vector2.addAssign(this.transformed, p2.prev.value);
+                    if(this.interpolationType == InterpolationType.Lerp) {
+                        Vector2.addAssign(this.transformed, p2.prev.value);
+                    } else {
+                        this.transformed =
+                            new Vector2(
+                                this.transformed.x * p2.prev.value.x - this.transformed.y * p2.prev.value.y,
+                                this.transformed.x * p2.prev.value.y + p2.prev.value.x * this.transformed.y);
+                    }
 
                     if(p2.time >= time) { /*search for new p2*/
                         break;
@@ -173,8 +194,17 @@ class TwoDimTransformController {
             }
 
             let t: number = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
-            this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
-            Vector2.addAssign(this.transformed, this.interpolant);
+
+            if(this.interpolationType == InterpolationType.Lerp) {
+                this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
+                Vector2.addAssign(this.transformed, this.interpolant);
+            } else {
+                this.interpolant = Vector2.slerp(new Vector2(1.0, 0.0), this.p1.next.value, t);
+                this.transformed =
+                    new Vector2(
+                        this.transformed.x * this.interpolant.x - this.transformed.y * this.interpolant.y,
+                        this.transformed.x * this.interpolant.y + this.interpolant.x * this.transformed.y);
+            }
         }
     }
 }
@@ -187,6 +217,7 @@ class TwoDimTransformAnimator {
     elapsedTime: number;
 
     positionTransformController: TwoDimTransformController;
+    rotationTransformController: TwoDimTransformController;
     scaleTransformController: TwoDimTransformController;
 
     go: boolean;
@@ -209,10 +240,22 @@ class TwoDimTransformAnimator {
         timeline2.createPoint(4, new Vector2(2,2));
         timeline2.createPoint(8, new Vector2(-2,-2));
 
+        let timeline3: TwoDimTransformTimeline = new TwoDimTransformTimeline();
+
+        let a3: number = 45 * Math.PI / 180;
+        let a4: number = -90 * Math.PI / 180;
+
+        timeline3.createPoint(0, new Vector2(1.0, 0.0));
+        timeline3.createPoint(10, new Vector2(Math.cos(a3), Math.sin(a3)));
+
 
         this.positionTransformController =
             new TwoDimTransformController(
                 timeline1, InterpolationType.Lerp, transformable.position);
+
+        this.rotationTransformController =
+            new TwoDimTransformController(
+                timeline3, InterpolationType.Slerp, transformable.rotation);
 
         this.scaleTransformController =
             new TwoDimTransformController(
@@ -224,7 +267,6 @@ class TwoDimTransformAnimator {
     startAnimation(): void {
         this.go = true;
         this.startTime = performance.now() * 0.001;
-        //this.positionTransformController.transform(6);
     }
 
     stopAnimation(): void { }
@@ -236,10 +278,12 @@ class TwoDimTransformAnimator {
        // if(this.elapsedTime > 2)
             //this.elapsedTime = 4 - this.elapsedTime;
 
-        this.positionTransformController.transform(this.elapsedTime);
-        this.scaleTransformController.transform(this.elapsedTime);
+       // this.positionTransformController.transform(this.elapsedTime);
+        this.rotationTransformController.transform(this.elapsedTime);
+       // this.scaleTransformController.transform(this.elapsedTime);
 
-        Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
-        Vector2.assign(this.transformable.scale, this.scaleTransformController.transformed);
+       // Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
+        Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformed);
+        //Vector2.assign(this.transformable.scale, this.scaleTransformController.transformed);
     }
 }

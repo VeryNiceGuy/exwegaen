@@ -88,17 +88,29 @@ var TwoDimTransformController = (function () {
         this.interpolationType = interpolationType;
         this.value = value;
         this.p1 = timeline.getFirstPoint();
-        this.interpolant = new Vector2();
+        this.interpolant = new Vector2(1, 0);
         this.transformed = value;
     }
     TwoDimTransformController.prototype.transform = function (time) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
-            Vector2.subtractAssign(this.transformed, this.interpolant);
-            this.interpolant = new Vector2();
+            if (this.interpolationType == 0 /* Lerp */) {
+                Vector2.subtractAssign(this.transformed, this.interpolant);
+            }
+            else {
+                this.transformed =
+                    new Vector2(this.transformed.x * this.interpolant.x - this.transformed.y * -this.interpolant.y, this.transformed.x * -this.interpolant.y + this.interpolant.x * this.transformed.y);
+            }
+            this.interpolant = new Vector2(1, 0);
             if (time < this.p1.time) {
                 var p1 = this.p1.prev;
                 while (p1) {
-                    Vector2.subtractAssign(this.transformed, p1.prev.value);
+                    if (this.interpolationType == 0 /* Lerp */) {
+                        Vector2.subtractAssign(this.transformed, p1.prev.value);
+                    }
+                    else {
+                        this.transformed =
+                            new Vector2(this.transformed.x * p1.prev.value.x - this.transformed.y * -p1.prev.value.y, this.transformed.x * -p1.prev.value.y + p1.prev.value.x * this.transformed.y);
+                    }
                     if (p1.time <= time) {
                         break;
                     }
@@ -109,7 +121,13 @@ var TwoDimTransformController = (function () {
             else if (time > this.p1.next.time) {
                 var p2 = this.p1.next.next;
                 while (p2) {
-                    Vector2.addAssign(this.transformed, p2.prev.value);
+                    if (this.interpolationType == 0 /* Lerp */) {
+                        Vector2.addAssign(this.transformed, p2.prev.value);
+                    }
+                    else {
+                        this.transformed =
+                            new Vector2(this.transformed.x * p2.prev.value.x - this.transformed.y * p2.prev.value.y, this.transformed.x * p2.prev.value.y + p2.prev.value.x * this.transformed.y);
+                    }
                     if (p2.time >= time) {
                         break;
                     }
@@ -118,8 +136,15 @@ var TwoDimTransformController = (function () {
                 this.p1 = p2.prev;
             }
             var t = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
-            this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
-            Vector2.addAssign(this.transformed, this.interpolant);
+            if (this.interpolationType == 0 /* Lerp */) {
+                this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
+                Vector2.addAssign(this.transformed, this.interpolant);
+            }
+            else {
+                this.interpolant = Vector2.slerp(new Vector2(1.0, 0.0), this.p1.next.value, t);
+                this.transformed =
+                    new Vector2(this.transformed.x * this.interpolant.x - this.transformed.y * this.interpolant.y, this.transformed.x * this.interpolant.y + this.interpolant.x * this.transformed.y);
+            }
         }
     };
     return TwoDimTransformController;
@@ -139,8 +164,15 @@ var TwoDimTransformAnimator = (function () {
         timeline2.createPoint(0, new Vector2(0, 0));
         timeline2.createPoint(4, new Vector2(2, 2));
         timeline2.createPoint(8, new Vector2(-2, -2));
+        var timeline3 = new TwoDimTransformTimeline();
+        var a3 = 45 * Math.PI / 180;
+        var a4 = -90 * Math.PI / 180;
+        timeline3.createPoint(0, new Vector2(1.0, 0.0));
+        timeline3.createPoint(10, new Vector2(Math.cos(a3), Math.sin(a3)));
         this.positionTransformController =
             new TwoDimTransformController(timeline1, 0 /* Lerp */, transformable.position);
+        this.rotationTransformController =
+            new TwoDimTransformController(timeline3, 1 /* Slerp */, transformable.rotation);
         this.scaleTransformController =
             new TwoDimTransformController(timeline2, 0 /* Lerp */, transformable.scale);
         this.go = false;
@@ -148,7 +180,6 @@ var TwoDimTransformAnimator = (function () {
     TwoDimTransformAnimator.prototype.startAnimation = function () {
         this.go = true;
         this.startTime = performance.now() * 0.001;
-        //this.positionTransformController.transform(6);
     };
     TwoDimTransformAnimator.prototype.stopAnimation = function () { };
     TwoDimTransformAnimator.prototype.animate = function () {
@@ -157,10 +188,12 @@ var TwoDimTransformAnimator = (function () {
         this.elapsedTime = (performance.now() * 0.001) - this.startTime;
         // if(this.elapsedTime > 2)
         //this.elapsedTime = 4 - this.elapsedTime;
-        this.positionTransformController.transform(this.elapsedTime);
-        this.scaleTransformController.transform(this.elapsedTime);
-        Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
-        Vector2.assign(this.transformable.scale, this.scaleTransformController.transformed);
+        // this.positionTransformController.transform(this.elapsedTime);
+        this.rotationTransformController.transform(this.elapsedTime);
+        // this.scaleTransformController.transform(this.elapsedTime);
+        // Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
+        Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformed);
+        //Vector2.assign(this.transformable.scale, this.scaleTransformController.transformed);
     };
     return TwoDimTransformAnimator;
 }());
