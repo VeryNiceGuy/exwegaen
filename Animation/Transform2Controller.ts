@@ -187,6 +187,7 @@ class TwoDimTransformAnimator {
     elapsedTime: number;
 
     positionTransformController: TwoDimTransformController;
+    scaleTransformController: TwoDimTransformController;
 
     go: boolean;
 
@@ -194,19 +195,28 @@ class TwoDimTransformAnimator {
         this.animation = animation;
         this.transformable = transformable;
 
-        let timeline: TwoDimTransformTimeline = new TwoDimTransformTimeline();
-        timeline.createPoint(0, new Vector2(0,0));
-        timeline.createPoint(2, new Vector2(250,0));
-        timeline.createPoint(4, new Vector2(-250,0));
+        let timeline1: TwoDimTransformTimeline = new TwoDimTransformTimeline();
+        timeline1.createPoint(0, new Vector2(0,0));
+        timeline1.createPoint(2, new Vector2(250,0));
+        timeline1.createPoint(4, new Vector2(-250,0));
 
-        timeline.createPoint(5, new Vector2(50,0));
-        timeline.createPoint(7, new Vector2(-200,50));
-        timeline.createPoint(9, new Vector2(50,100));
+        timeline1.createPoint(5, new Vector2(50,0));
+        timeline1.createPoint(7, new Vector2(-200,50));
+        timeline1.createPoint(9, new Vector2(50,100));
+
+        let timeline2: TwoDimTransformTimeline = new TwoDimTransformTimeline();
+        timeline2.createPoint(0, new Vector2(0,0));
+        timeline2.createPoint(4, new Vector2(2,2));
+        timeline2.createPoint(8, new Vector2(-2,-2));
 
 
         this.positionTransformController =
             new TwoDimTransformController(
-                timeline, InterpolationType.Lerp, transformable.position);
+                timeline1, InterpolationType.Lerp, transformable.position);
+
+        this.scaleTransformController =
+            new TwoDimTransformController(
+                timeline2, InterpolationType.Lerp, transformable.scale);
 
         this.go = false;
     }
@@ -227,6 +237,9 @@ class TwoDimTransformAnimator {
             //this.elapsedTime = 4 - this.elapsedTime;
 
         this.positionTransformController.transform(this.elapsedTime);
+        this.scaleTransformController.transform(this.elapsedTime);
+
         Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
+        Vector2.assign(this.transformable.scale, this.scaleTransformController.transformed);
     }
 }
