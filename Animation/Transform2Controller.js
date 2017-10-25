@@ -88,7 +88,12 @@ var TwoDimTransformController = (function () {
         this.interpolationType = interpolationType;
         this.value = value;
         this.p1 = timeline.getFirstPoint();
-        this.interpolant = new Vector2(1, 0);
+        if (interpolationType == 0 /* Lerp */) {
+            this.interpolant = new Vector2(0, 0);
+        }
+        else {
+            this.interpolant = new Vector2(1, 0);
+        }
         this.transformed = value;
     }
     TwoDimTransformController.prototype.transform = function (time) {
@@ -100,7 +105,12 @@ var TwoDimTransformController = (function () {
                 this.transformed =
                     new Vector2(this.transformed.x * this.interpolant.x - this.transformed.y * -this.interpolant.y, this.transformed.x * -this.interpolant.y + this.interpolant.x * this.transformed.y);
             }
-            this.interpolant = new Vector2(1, 0);
+            if (this.interpolationType == 0 /* Lerp */) {
+                this.interpolant = new Vector2(0, 0);
+            }
+            else {
+                this.interpolant = new Vector2(1, 0);
+            }
             if (time < this.p1.time) {
                 var p1 = this.p1.prev;
                 while (p1) {
@@ -188,12 +198,12 @@ var TwoDimTransformAnimator = (function () {
         this.elapsedTime = (performance.now() * 0.001) - this.startTime;
         // if(this.elapsedTime > 2)
         //this.elapsedTime = 4 - this.elapsedTime;
-        // this.positionTransformController.transform(this.elapsedTime);
+        this.positionTransformController.transform(this.elapsedTime);
         this.rotationTransformController.transform(this.elapsedTime);
-        // this.scaleTransformController.transform(this.elapsedTime);
-        // Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
+        this.scaleTransformController.transform(this.elapsedTime);
+        Vector2.assign(this.transformable.position, this.positionTransformController.transformed);
         Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformed);
-        //Vector2.assign(this.transformable.scale, this.scaleTransformController.transformed);
+        Vector2.assign(this.transformable.scale, this.scaleTransformController.transformed);
     };
     return TwoDimTransformAnimator;
 }());
