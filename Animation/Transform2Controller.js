@@ -98,11 +98,11 @@ var TwoDimTransformController = (function () {
                 var p1 = this.p1.prev;
                 while (p1) {
                     if (this.interpolationType == 0 /* Lerp */) {
-                        Vector2.subtractAssign(this.transformed, p1.prev.value);
+                        Vector2.subtractAssign(this.transformed, p1.next.value);
                     }
                     else {
                         this.transformed =
-                            new Vector2(this.transformed.x * p1.prev.value.x - this.transformed.y * -p1.prev.value.y, this.transformed.x * -p1.prev.value.y + p1.prev.value.x * this.transformed.y);
+                            new Vector2(this.transformed.x * p1.next.value.x - this.transformed.y * -p1.next.value.y, this.transformed.x * -p1.next.value.y + p1.next.value.x * this.transformed.y);
                     }
                     if (p1.time <= time) {
                         break;
