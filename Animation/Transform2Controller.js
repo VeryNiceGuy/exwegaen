@@ -182,7 +182,6 @@ var TwoDimTransformAnimator = (function () {
         this.positionTransformController.transform(this.elapsedTime);
         this.rotationTransformController.transform(this.elapsedTime);
         this.scaleTransformController.transform(this.elapsedTime);
-        console.log(this.positionTransformController.transformedInterpolated.x);
         Vector2.assign(this.transformable.position, this.positionTransformController.transformedInterpolated);
         Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
         Vector2.assign(this.transformable.scale, this.scaleTransformController.transformedInterpolated);

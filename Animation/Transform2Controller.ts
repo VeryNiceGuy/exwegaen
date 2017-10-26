@@ -138,6 +138,7 @@ class TwoDimTransformController {
 
         this.p1 = timeline.getFirstPoint();
         this.transformed = new Vector2();
+
        Vector2.assign(this.transformed, value);
         this.transformedInterpolated = new Vector2();
     }
@@ -239,7 +240,6 @@ class TwoDimTransformAnimator {
         timeline3.createPoint(0, new Vector2(1.0, 0.0));
         timeline3.createPoint(10, new Vector2(Math.cos(a3), Math.sin(a3)));
 
-
         this.positionTransformController =
             new TwoDimTransformController(
                 timeline1, InterpolationType.Lerp, transformable.position);
@@ -269,8 +269,6 @@ class TwoDimTransformAnimator {
         this.positionTransformController.transform(this.elapsedTime);
         this.rotationTransformController.transform(this.elapsedTime);
         this.scaleTransformController.transform(this.elapsedTime);
-
-        console.log(this.positionTransformController.transformedInterpolated.x);
 
         Vector2.assign(this.transformable.position, this.positionTransformController.transformedInterpolated);
         Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
