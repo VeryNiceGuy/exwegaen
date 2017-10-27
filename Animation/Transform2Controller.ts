@@ -143,7 +143,7 @@ class TwoDimTransformController {
         this.transformedInterpolated = new Vector2();
     }
 
-    nextPoint(): void {
+    private nextPoint(): void {
         if(this.interpolationType == InterpolationType.Lerp) {
             Vector2.addAssign(this.transformed, this.p1.next.value);
         } else {
@@ -154,7 +154,7 @@ class TwoDimTransformController {
         }
     }
 
-    prevPoint(): void {
+    private prevPoint(): void {
         if(this.interpolationType == InterpolationType.Lerp) {
             Vector2.subtractAssign(this.transformed, this.p1.value);
         } else {
@@ -165,7 +165,7 @@ class TwoDimTransformController {
         }
     }
 
-    interpolate(time: number): void {
+    private interpolate(time: number): void {
         let t: number = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
         if(this.interpolationType == InterpolationType.Lerp) {
             this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
@@ -181,33 +181,27 @@ class TwoDimTransformController {
 
     transform(time: number) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
-            if(time < this.p1.time) {
-                let p1: TwoDimTransformPoint = this.p1.prev;
-                while(p1) {
-                    this.prevPoint();
-
-                    if(p1.time <= time) { /*search for new p1*/
-                        break;
-                    }
-
-                    p1 = p1.prev;
-                }
-
-                this.p1 = p1;
-            } else if(time > this.p1.next.time) {
+            if(time > this.p1.next.time) {
                 let p2: TwoDimTransformPoint = this.p1.next.next;
                 while(p2) {
                     this.nextPoint();
-
                     if(p2.time >= time) { /*search for new p2*/
                         break;
                     }
-
                     p2 = p2.next;
                 }
                 this.p1 = p2.prev;
+            } else if(time < this.p1.time) {
+                let p1: TwoDimTransformPoint = this.p1.prev;
+                while(p1) {
+                    this.prevPoint();
+                    if(p1.time <= time) { /*search for new p1*/
+                        break;
+                    }
+                    p1 = p1.prev;
+                }
+                this.p1 = p1;
             }
-
             this.interpolate(time);
         }
     }

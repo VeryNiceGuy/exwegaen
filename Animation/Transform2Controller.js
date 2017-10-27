@@ -124,18 +124,7 @@ var TwoDimTransformController = (function () {
     };
     TwoDimTransformController.prototype.transform = function (time) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
-            if (time < this.p1.time) {
-                var p1 = this.p1.prev;
-                while (p1) {
-                    this.prevPoint();
-                    if (p1.time <= time) {
-                        break;
-                    }
-                    p1 = p1.prev;
-                }
-                this.p1 = p1;
-            }
-            else if (time > this.p1.next.time) {
+            if (time > this.p1.next.time) {
                 var p2 = this.p1.next.next;
                 while (p2) {
                     this.nextPoint();
@@ -145,6 +134,17 @@ var TwoDimTransformController = (function () {
                     p2 = p2.next;
                 }
                 this.p1 = p2.prev;
+            }
+            else if (time < this.p1.time) {
+                var p1 = this.p1.prev;
+                while (p1) {
+                    this.prevPoint();
+                    if (p1.time <= time) {
+                        break;
+                    }
+                    p1 = p1.prev;
+                }
+                this.p1 = p1;
             }
             this.interpolate(time);
         }
