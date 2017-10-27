@@ -16,6 +16,24 @@
         return Vector2.add(rotatedVector, pivot);
     }
 
+    static complexMultiply(r: Vector2, v1: Vector2, v2: Vector2): void {
+        const x: number = v1.x * v2.x - v1.y * v2.y;
+        const y: number = v1.x * v2.y + v2.x * v1.y;
+
+        r.x = x;
+        r.y = y;
+    }
+
+    static complexDivide(r: Vector2, c1: Vector2, c2: Vector2): void {
+        const y2: number = -c2.y;
+
+        const x: number = c1.x * c2.x - c1.y * y2;
+        const y: number = c1.x * y2 + c2.x * c1.y;
+
+        r.x = x;
+        r.y = y;
+    }
+
     static magnitude(vector: Vector2): number {
         return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
     }

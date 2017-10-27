@@ -10,6 +10,19 @@ var Vector2 = (function () {
         var rotatedVector = new Vector2(vectorRelativeToPivot.x * angle.x - vectorRelativeToPivot.y * angle.y, vectorRelativeToPivot.y * angle.x + vectorRelativeToPivot.x * angle.y);
         return Vector2.add(rotatedVector, pivot);
     };
+    Vector2.complexMultiply = function (r, v1, v2) {
+        var x = v1.x * v2.x - v1.y * v2.y;
+        var y = v1.x * v2.y + v2.x * v1.y;
+        r.x = x;
+        r.y = y;
+    };
+    Vector2.complexDivide = function (r, c1, c2) {
+        var y2 = -c2.y;
+        var x = c1.x * c2.x - c1.y * y2;
+        var y = c1.x * y2 + c2.x * c1.y;
+        r.x = x;
+        r.y = y;
+    };
     Vector2.magnitude = function (vector) {
         return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
     };
