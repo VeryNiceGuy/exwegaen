@@ -143,19 +143,48 @@ class TwoDimTransformController {
         this.transformedInterpolated = new Vector2();
     }
 
+    nextPoint(): void {
+        if(this.interpolationType == InterpolationType.Lerp) {
+            Vector2.addAssign(this.transformed, this.p1.next.value);
+        } else {
+            this.transformed =
+                new Vector2(
+                    this.transformed.x * this.p1.next.value.x - this.transformed.y * this.p1.next.value.y,
+                    this.transformed.x * this.p1.next.value.y + this.p1.next.value.x * this.transformed.y);
+        }
+    }
+
+    prevPoint(): void {
+        if(this.interpolationType == InterpolationType.Lerp) {
+            Vector2.subtractAssign(this.transformed, this.p1.value);
+        } else {
+            this.transformed =
+                new Vector2(
+                    this.transformed.x * this.p1.value.x - this.transformed.y * -this.p1.value.y,
+                    this.transformed.x * -this.p1.value.y + this.p1.value.x * this.transformed.y);
+        }
+    }
+
+    interpolate(time: number): void {
+        let t: number = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
+        if(this.interpolationType == InterpolationType.Lerp) {
+            this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
+            this.transformedInterpolated = Vector2.add(this.transformed, this.interpolant);
+        } else {
+            this.interpolant = Vector2.slerp(new Vector2(1.0, 0.0), this.p1.next.value, t);
+            this.transformedInterpolated =
+                new Vector2(
+                    this.transformed.x * this.interpolant.x - this.transformed.y * this.interpolant.y,
+                    this.transformed.x * this.interpolant.y + this.interpolant.x * this.transformed.y);
+        }
+    }
+
     transform(time: number) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
             if(time < this.p1.time) {
                 let p1: TwoDimTransformPoint = this.p1.prev;
                 while(p1) {
-                    if(this.interpolationType == InterpolationType.Lerp) {
-                        Vector2.subtractAssign(this.transformed, p1.next.value);
-                    } else {
-                        this.transformed =
-                            new Vector2(
-                                this.transformed.x * p1.next.value.x - this.transformed.y * -p1.next.value.y,
-                                this.transformed.x * -p1.next.value.y + p1.next.value.x * this.transformed.y);
-                    }
+                    this.prevPoint();
 
                     if(p1.time <= time) { /*search for new p1*/
                         break;
@@ -168,14 +197,7 @@ class TwoDimTransformController {
             } else if(time > this.p1.next.time) {
                 let p2: TwoDimTransformPoint = this.p1.next.next;
                 while(p2) {
-                    if(this.interpolationType == InterpolationType.Lerp) {
-                        Vector2.addAssign(this.transformed, p2.prev.value);
-                    } else {
-                        this.transformed =
-                            new Vector2(
-                                this.transformed.x * p2.prev.value.x - this.transformed.y * p2.prev.value.y,
-                                this.transformed.x * p2.prev.value.y + p2.prev.value.x * this.transformed.y);
-                    }
+                    this.nextPoint();
 
                     if(p2.time >= time) { /*search for new p2*/
                         break;
@@ -186,17 +208,7 @@ class TwoDimTransformController {
                 this.p1 = p2.prev;
             }
 
-            let t: number = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
-            if(this.interpolationType == InterpolationType.Lerp) {
-                this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
-                this.transformedInterpolated = Vector2.add(this.transformed, this.interpolant);
-            } else {
-                this.interpolant = Vector2.slerp(new Vector2(1.0, 0.0), this.p1.next.value, t);
-                this.transformedInterpolated =
-                    new Vector2(
-                        this.transformed.x * this.interpolant.x - this.transformed.y * this.interpolant.y,
-                        this.transformed.x * this.interpolant.y + this.interpolant.x * this.transformed.y);
-            }
+            this.interpolate(time);
         }
     }
 }

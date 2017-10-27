@@ -92,18 +92,42 @@ var TwoDimTransformController = (function () {
         Vector2.assign(this.transformed, value);
         this.transformedInterpolated = new Vector2();
     }
+    TwoDimTransformController.prototype.nextPoint = function () {
+        if (this.interpolationType == 0 /* Lerp */) {
+            Vector2.addAssign(this.transformed, this.p1.next.value);
+        }
+        else {
+            this.transformed =
+                new Vector2(this.transformed.x * this.p1.next.value.x - this.transformed.y * this.p1.next.value.y, this.transformed.x * this.p1.next.value.y + this.p1.next.value.x * this.transformed.y);
+        }
+    };
+    TwoDimTransformController.prototype.prevPoint = function () {
+        if (this.interpolationType == 0 /* Lerp */) {
+            Vector2.subtractAssign(this.transformed, this.p1.value);
+        }
+        else {
+            this.transformed =
+                new Vector2(this.transformed.x * this.p1.value.x - this.transformed.y * -this.p1.value.y, this.transformed.x * -this.p1.value.y + this.p1.value.x * this.transformed.y);
+        }
+    };
+    TwoDimTransformController.prototype.interpolate = function (time) {
+        var t = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
+        if (this.interpolationType == 0 /* Lerp */) {
+            this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
+            this.transformedInterpolated = Vector2.add(this.transformed, this.interpolant);
+        }
+        else {
+            this.interpolant = Vector2.slerp(new Vector2(1.0, 0.0), this.p1.next.value, t);
+            this.transformedInterpolated =
+                new Vector2(this.transformed.x * this.interpolant.x - this.transformed.y * this.interpolant.y, this.transformed.x * this.interpolant.y + this.interpolant.x * this.transformed.y);
+        }
+    };
     TwoDimTransformController.prototype.transform = function (time) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
             if (time < this.p1.time) {
                 var p1 = this.p1.prev;
                 while (p1) {
-                    if (this.interpolationType == 0 /* Lerp */) {
-                        Vector2.subtractAssign(this.transformed, p1.next.value);
-                    }
-                    else {
-                        this.transformed =
-                            new Vector2(this.transformed.x * p1.next.value.x - this.transformed.y * -p1.next.value.y, this.transformed.x * -p1.next.value.y + p1.next.value.x * this.transformed.y);
-                    }
+                    this.prevPoint();
                     if (p1.time <= time) {
                         break;
                     }
@@ -114,13 +138,7 @@ var TwoDimTransformController = (function () {
             else if (time > this.p1.next.time) {
                 var p2 = this.p1.next.next;
                 while (p2) {
-                    if (this.interpolationType == 0 /* Lerp */) {
-                        Vector2.addAssign(this.transformed, p2.prev.value);
-                    }
-                    else {
-                        this.transformed =
-                            new Vector2(this.transformed.x * p2.prev.value.x - this.transformed.y * p2.prev.value.y, this.transformed.x * p2.prev.value.y + p2.prev.value.x * this.transformed.y);
-                    }
+                    this.nextPoint();
                     if (p2.time >= time) {
                         break;
                     }
@@ -128,16 +146,7 @@ var TwoDimTransformController = (function () {
                 }
                 this.p1 = p2.prev;
             }
-            var t = (time - this.p1.time) / (this.p1.next.time - this.p1.time);
-            if (this.interpolationType == 0 /* Lerp */) {
-                this.interpolant = Vector2.lerp(new Vector2(), this.p1.next.value, t);
-                this.transformedInterpolated = Vector2.add(this.transformed, this.interpolant);
-            }
-            else {
-                this.interpolant = Vector2.slerp(new Vector2(1.0, 0.0), this.p1.next.value, t);
-                this.transformedInterpolated =
-                    new Vector2(this.transformed.x * this.interpolant.x - this.transformed.y * this.interpolant.y, this.transformed.x * this.interpolant.y + this.interpolant.x * this.transformed.y);
-            }
+            this.interpolate(time);
         }
     };
     return TwoDimTransformController;
