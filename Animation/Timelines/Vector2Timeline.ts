@@ -1,24 +1,24 @@
-class TwoDimTransformPoint extends Timepoint {
+class Vector2Timepoint extends Timepoint {
     value: Vector2;
 
     constructor(
         time: number,
         value: Vector2,
-        next: TwoDimTransformPoint = null,
-        prev: TwoDimTransformPoint = null) {
-
+        next: Vector2Timepoint = null,
+        prev: Vector2Timepoint = null) {
         super(time, next, prev);
+
         this.value = value;
     }
 }
 
-class TwoDimTransformTimeline extends Timeline {
+class Vector2Timeline extends Timeline {
     constructor() {
         super();
     }
 
-    createPoint(time: number, value: Vector2): TwoDimTransformPoint {
-        let newPoint: TwoDimTransformPoint = new TwoDimTransformPoint(time, value);
+    createPoint(time: number, value: Vector2): Vector2Timepoint {
+        let newPoint: Vector2Timepoint = new Vector2Timepoint(time, value);
 
         if (this.getNumberOfPoints())
         {

@@ -1,9 +1,9 @@
-abstract class TwoDimTransformController extends Controller {
+abstract class Vector2Controller extends Controller {
     protected interpolant: Vector2;
     public transformed: Vector2;
     public transformedInterpolated: Vector2;
 
-    constructor(timeline: TwoDimTransformTimeline, value: Vector2) {
+    constructor(timeline: Vector2Timeline, value: Vector2) {
         super(timeline);
         this.transformed = new Vector2();
 

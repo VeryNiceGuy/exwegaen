@@ -1,6 +1,7 @@
 abstract class Controller {
     private timeline: Timeline;
     private p1: Timepoint;
+    private p2: Timepoint;
 
     protected abstract prevPoint(p1: Timepoint): void;
     protected abstract thisPoint(p1: Timepoint, t: number): void;
@@ -9,32 +10,43 @@ abstract class Controller {
     constructor(timeline: Timeline) {
         this.timeline = timeline;
         this.p1 = this.timeline.getFirstPoint();
+        this.p2 = this.p1.next;
+    }
+
+    private traverseForward(time: number): void {
+        this.p1 = this.p2;
+        this.p2 = this.p2.next;
+
+        while(this.p2.time < time) {
+            this.nextPoint(this.p1);
+
+            this.p1 = this.p2;
+            this.p2 = this.p2.next;
+        }
+        this.nextPoint(this.p1);
+    }
+
+    private traverseBackward(time: number): void {
+        this.p1 = this.p1.prev;
+        this.p2 = this.p1;
+
+        while(this.p1.time > time) {
+            this.prevPoint(this.p2);
+
+            this.p1 = this.p1.prev;
+            this.p2 = this.p1;
+        }
+        this.prevPoint(this.p2);
     }
 
     update(time: number) {
         if (time >= 0 && time <= this.timeline.getLastPoint().time) {
             if(time > this.p1.next.time) {
-                let p2: Timepoint = this.p1.next.next;
-                while(p2) {
-                    this.nextPoint(this.p1.next);
-                    if(p2.time >= time) { /*search for new p2*/
-                        break;
-                    }
-                    p2 = p2.next;
-                }
-                this.p1 = p2.prev;
+                this.traverseForward(time);
             } else if(time < this.p1.time) {
-                let p1: Timepoint = this.p1.prev;
-                while(p1) {
-                    this.prevPoint(this.p1);
-                    if(p1.time <= time) { /*search for new p1*/
-                        break;
-                    }
-                    p1 = p1.prev;
-                }
-                this.p1 = p1;
+                this.traverseBackward(time);
             }
-            this.thisPoint(this.p1, (time - this.p1.time) / (this.p1.next.time - this.p1.time));
+            this.thisPoint(this.p1, (time - this.p1.time) / (this.p2.time - this.p1.time));
         }
     }
 }
