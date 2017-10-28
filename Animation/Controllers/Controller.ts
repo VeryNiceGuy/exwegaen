@@ -14,29 +14,19 @@ abstract class Controller {
     }
 
     private traverseForward(time: number): void {
-        this.p1 = this.p2;
-        this.p2 = this.p2.next;
-
-        while(this.p2.time < time) {
-            this.nextPoint(this.p1);
-
+        do {
             this.p1 = this.p2;
             this.p2 = this.p2.next;
-        }
-        this.nextPoint(this.p1);
+            this.nextPoint(this.p1)
+        } while(this.p2.time < time);
     }
 
     private traverseBackward(time: number): void {
-        this.p1 = this.p1.prev;
-        this.p2 = this.p1;
-
-        while(this.p1.time > time) {
-            this.prevPoint(this.p2);
-
+        do {
             this.p1 = this.p1.prev;
             this.p2 = this.p1;
-        }
-        this.prevPoint(this.p2);
+            this.prevPoint(this.p2);
+        }while(this.p1.time > time);
     }
 
     update(time: number) {

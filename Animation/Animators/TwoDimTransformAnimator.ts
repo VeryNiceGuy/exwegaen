@@ -87,7 +87,7 @@ class TwoDimTransformAnimator {
         this.scaleTransformController.update(this.elapsedTime);
 
         Vector2.assign(this.transformable.position, this.positionTransformController.transformedInterpolated);
-        //Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
-        //Vector2.assign(this.transformable.scale, this.scaleTransformController.transformedInterpolated);
+        Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
+        Vector2.assign(this.transformable.scale, this.scaleTransformController.transformedInterpolated);
     }
 }
