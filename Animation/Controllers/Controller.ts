@@ -3,9 +3,9 @@ abstract class Controller {
     private p1: Timepoint;
     private p2: Timepoint;
 
-    protected abstract prevPoint(p1: Timepoint): void;
-    protected abstract thisPoint(p1: Timepoint, t: number): void;
-    protected abstract nextPoint(p2: Timepoint): void;
+    protected abstract interpolateBetweenPoints(p1: Timepoint, p2:Timepoint, t: number): void;
+    protected abstract transitToNextSegment(p1: Timepoint, p2: Timepoint): void;
+    protected abstract transitToPrevSegment(p1: Timepoint, p2: Timepoint): void;
 
     constructor(timeline: Timeline) {
         this.timeline = timeline;
@@ -17,7 +17,8 @@ abstract class Controller {
         do {
             this.p1 = this.p2;
             this.p2 = this.p2.next;
-            this.nextPoint(this.p1)
+
+            this.transitToNextSegment(this.p1, this.p2);
         } while(this.p2.time < time);
     }
 
@@ -25,8 +26,9 @@ abstract class Controller {
         do {
             this.p1 = this.p1.prev;
             this.p2 = this.p1;
-            this.prevPoint(this.p2);
-        }while(this.p1.time > time);
+
+            this.transitToPrevSegment(this.p1, this.p2);
+        } while(this.p1.time > time);
     }
 
     update(time: number) {
@@ -36,7 +38,13 @@ abstract class Controller {
             } else if(time < this.p1.time) {
                 this.traverseBackward(time);
             }
-            this.thisPoint(this.p1, (time - this.p1.time) / (this.p2.time - this.p1.time));
+        } else if(this.p2.time !== this.timeline.getLastPoint().time){
+            this.traverseForward(this.timeline.getLastPoint().time);
+            time = this.timeline.getLastPoint().time;
+        } else {
+            return;
         }
+        this.interpolateBetweenPoints(
+            this.p1, this.p2,(time - this.p1.time) / (this.p2.time - this.p1.time));
     }
 }
