@@ -7,6 +7,16 @@ abstract class Controller {
     protected abstract transitToNextSegment(p1: Timepoint, p2: Timepoint): void;
     protected abstract transitToPrevSegment(p1: Timepoint, p2: Timepoint): void;
 
+    private static clamp(v: number, l: number, h: number): number {
+        if(v < l) {
+            return l;
+        } else if(v > h) {
+            return h;
+        } else {
+            return v;
+        }
+    }
+
     constructor(timeline: Timeline) {
         this.timeline = timeline;
         this.p1 = this.timeline.getFirstPoint();
@@ -31,19 +41,16 @@ abstract class Controller {
         } while(this.p1.time > time);
     }
 
-    update(time: number) {
-        if (time >= 0 && time <= this.timeline.getLastPoint().time) {
-            if(time > this.p1.next.time) {
-                this.traverseForward(time);
-            } else if(time < this.p1.time) {
-                this.traverseBackward(time);
-            }
-        } else if(this.p2.time !== this.timeline.getLastPoint().time){
-            this.traverseForward(this.timeline.getLastPoint().time);
-            time = this.timeline.getLastPoint().time;
-        } else {
-            return;
+    update(time: number): void {
+        time = Controller.clamp(
+            time, 0, this.timeline.getLastPoint().time);
+
+        if(time > this.p2.time) {
+            this.traverseForward(time);
+        } else if(time < this.p1.time) {
+            this.traverseBackward(time);
         }
+
         this.interpolateBetweenPoints(
             this.p1, this.p2,(time - this.p1.time) / (this.p2.time - this.p1.time));
     }
