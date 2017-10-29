@@ -30,11 +30,11 @@ var TwoDimTransformAnimator = (function () {
         timeline3.createPoint(0, new Vector2(1.0, 0.0));
         timeline3.createPoint(10, new Vector2(Math.cos(a3), Math.sin(a3)));
         this.positionTransformController =
-            new PolarVector2Controller(timeline1, transformable.position);
+            new Vector2DisplacementController(timeline1, transformable.position);
         this.rotationTransformController =
-            new AxialVector2Controller(timeline3, transformable.rotation);
+            new Vector2AngularDisplacementController(timeline3, transformable.rotation);
         this.scaleTransformController =
-            new PolarVector2Controller(timeline2, transformable.scale);
+            new Vector2DisplacementController(timeline2, transformable.scale);
         this.go = false;
     }
     TwoDimTransformAnimator.prototype.startAnimation = function () {

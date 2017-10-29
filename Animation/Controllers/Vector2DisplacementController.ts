@@ -1,4 +1,4 @@
-class PolarVector2Controller extends Vector2Controller {
+class Vector2DisplacementController extends Vector2Controller {
     constructor(timeline: Vector2Timeline, value: Vector2) {
         super(timeline, value);
     }
