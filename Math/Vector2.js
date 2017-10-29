@@ -23,8 +23,8 @@ var Vector2 = (function () {
         r.x = x;
         r.y = y;
     };
-    Vector2.magnitude = function (vector) {
-        return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+    Vector2.prototype.magnitude = function () {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y));
     };
     Vector2.dot = function (vector1, vector2) {
         return (vector1.x * vector2.x) + (vector1.y * vector2.y);
@@ -73,7 +73,7 @@ var Vector2 = (function () {
     };
     Vector2.angleBetween = function (vector1, vector2) {
         return Math.acos(Vector2.dot(vector1, vector2) /
-            (Vector2.magnitude(vector1) * Vector2.magnitude(vector2)));
+            (vector1.magnitude() * vector2.magnitude()));
     };
     Vector2.lerp = function (vector1, vector2, t) {
         return Vector2.add(vector1, Vector2.multiplyAssignScalar(Vector2.subtract(vector2, vector1), t));

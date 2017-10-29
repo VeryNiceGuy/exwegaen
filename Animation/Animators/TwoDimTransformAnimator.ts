@@ -57,15 +57,15 @@ class TwoDimTransformAnimator {
         timeline3.createPoint(10, new Vector2(Math.cos(a3), Math.sin(a3)));
 
         this.positionTransformController =
-            new Vector2DisplacementController(
+            new Vector2DispController(
                 timeline1, transformable.position);
 
         this.rotationTransformController =
-            new Vector2AngularDisplacementController(
+            new Vector2AngDispController(
                 timeline3, transformable.rotation);
 
         this.scaleTransformController =
-            new Vector2DisplacementController(
+            new Vector2DispController(
                 timeline2, transformable.scale);
 
         this.go = false;

@@ -34,8 +34,8 @@
         r.y = y;
     }
 
-    static magnitude(vector: Vector2): number {
-        return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+    magnitude(): number {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y));
     }
 
     static dot(vector1: Vector2, vector2: Vector2): number {
@@ -102,7 +102,7 @@
 
     static angleBetween(vector1: Vector2, vector2: Vector2): number {
         return Math.acos(Vector2.dot(vector1, vector2) /
-            (Vector2.magnitude(vector1) * Vector2.magnitude(vector2)));
+            (vector1.magnitude() * vector2.magnitude()));
     }
 
     static lerp(vector1: Vector2, vector2: Vector2, t: number): Vector2 {

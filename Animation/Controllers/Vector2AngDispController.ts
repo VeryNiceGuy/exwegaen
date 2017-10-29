@@ -1,4 +1,4 @@
-class Vector2AngularDisplacementController extends Vector2Controller {
+class Vector2AngDispController extends Vector2Controller {
     constructor(timeline: Vector2Timeline, value: Vector2){
         super(timeline, value);
     }
