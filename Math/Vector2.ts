@@ -28,17 +28,18 @@
         r.y = y;
     }
 
-    static complexDivide(r: Vector2, c1: Vector2, c2: Vector2): void {
-        const y2: number = -c2.y;
-        const x: number = c1.x * c2.x - c1.y * y2;
-        const y: number = c1.x * y2 + c2.x * c1.y;
+    static complexDivide(r: Vector2, v1: Vector2, v2: Vector2): void {
+        const y2: number = -v2.y;
+
+        const x: number = v1.x * v2.x - v1.y * y2;
+        const y: number = v1.x * y2 + v2.x * v1.y;
 
         r.x = x;
         r.y = y;
     }
 
     magnitude(): number {
-        return Math.sqrt((this.x * this.x) + (this.y * this.y));
+        return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
     assign(v: Vector2): void {
@@ -80,8 +81,8 @@
         r.y = v.y * s;
     }
 
-    static angleBetween(vector1: Vector2, vector2: Vector2): number {
-        return Math.acos(Vector2.dot(vector1, vector2) / (vector1.magnitude() * vector2.magnitude()));
+    static angleBetween(v1: Vector2, v2: Vector2): number {
+        return Math.acos(Vector2.dot(v1, v2) / (v1.magnitude() * v2.magnitude()));
     }
 
     static lerp(r: Vector2, v1: Vector2, v2: Vector2, t: number): void {
@@ -91,14 +92,12 @@
     }
 
     static slerp(r: Vector2, v1: Vector2, v2: Vector2, t: number): void {
-        let angle: number = Vector2.angleBetween(v1, v2);
-        let t1: Vector2 = new Vector2();
-        let t2: Vector2 = new Vector2();
+        const angle: number = Vector2.angleBetween(v1, v2);
+        const sin1: number = Math.sin((1.0 - t) * angle);
+        const sin2: number = Math.sin(t * angle);
+        const sin3: number = Math.sin(angle);
 
-        Vector2.multiplyScalar(t1, v1, Math.sin((1.0 - t) * angle));
-        Vector2.multiplyScalar(t2, v2, Math.sin(t * angle));
-
-        Vector2.add(r, t1, t2);
-        Vector2.divideScalar(r, r, Math.sin(angle));
+        r.x = (v1.x * sin1 + v2.x * sin2) / sin3;
+        r.y = (v1.y * sin1 + v2.x * sin2) / sin3;
     } 
 }

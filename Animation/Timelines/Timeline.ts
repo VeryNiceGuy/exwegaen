@@ -3,7 +3,7 @@ abstract class Timepoint {
     next: Timepoint;
     prev: Timepoint;
 
-    constructor(time: number, next: Timepoint, prev: Timepoint){
+    constructor(time: number, next: Timepoint, prev: Timepoint) {
         this.time = time;
         this.next = next;
         this.prev = prev;

@@ -19,7 +19,6 @@ class Vector2DispController extends Controller {
     protected prepare(): void {
         this.v1 = new Vector2(this.value.x, this.value.y);
         this.v2 = new Vector2();
-
         Vector2.add(this.v2, this.v1, (this.p2 as Vector2Timepoint).value);
     }
 
