@@ -30,7 +30,6 @@
 
     static complexDivide(r: Vector2, c1: Vector2, c2: Vector2): void {
         const y2: number = -c2.y;
-
         const x: number = c1.x * c2.x - c1.y * y2;
         const y: number = c1.x * y2 + c2.x * c1.y;
 
@@ -47,8 +46,8 @@
         this.y = v.y;
     }
 
-    static dot(vector1: Vector2, vector2: Vector2): number {
-        return (vector1.x * vector2.x) + (vector1.y * vector2.y);
+    static dot(v1: Vector2, v2: Vector2): number {
+        return v1.x * v2.x + v1.y * v2.y;
     }
 
     static add(r: Vector2, v1: Vector2, v2: Vector2): void {
@@ -61,33 +60,24 @@
         r.y = v1.y - v2.y;
     }
 
-    static addAssignScalar(vector: Vector2, scalar: number): Vector2 {
-        vector.x += scalar;
-        vector.y += scalar;
-
-        return vector;
+    static addScalar(r: Vector2, v: Vector2, s: number): void {
+        r.x = v.x + s;
+        r.y = v.y + s;
     }
 
-    static subtractAssignScalar(vector: Vector2, scalar: number): Vector2 {
-        vector.x -= scalar;
-        vector.y -= scalar;
-
-        return vector;
+    static subtractScalar(r: Vector2, v: Vector2, s: number): void {
+        r.x = v.x - s;
+        r.y = v.y - s;
     }
 
-    static multiplyScalar(vector: Vector2, scalar: number): Vector2 {
-        return new Vector2(vector.x * scalar, vector.y * scalar);
+    static divideScalar(r: Vector2, v: Vector2, s: number): void {
+        r.x = v.x / s;
+        r.y = v.y / s;
     }
 
-    static divideScalar(vector: Vector2, scalar: number): Vector2 {
-        return new Vector2(vector.x / scalar, vector.y / scalar);
-    }
-
-    static multiplyAssignScalar(vector: Vector2, scalar: number): Vector2 {
-        vector.x *= scalar;
-        vector.y *= scalar;
-
-        return vector;
+    static multiplyScalar(r: Vector2, v: Vector2, s: number): void {
+        r.x = v.x * s;
+        r.y = v.y * s;
     }
 
     static angleBetween(vector1: Vector2, vector2: Vector2): number {
@@ -97,18 +87,19 @@
 
     static lerp(r: Vector2, v1: Vector2, v2: Vector2, t: number): void {
         Vector2.subtract(r, v2, v1);
-        Vector2.add(r, v1, Vector2.multiplyAssignScalar(r, t));
+        Vector2.multiplyScalar(r, r, t);
+        Vector2.add(r, v1, r);
     }
 
     static slerp(r: Vector2, v1: Vector2, v2: Vector2, t: number): void {
         let angle: number = Vector2.angleBetween(v1, v2);
-        let temp: Vector2 = new Vector2();
+        let t1: Vector2 = new Vector2();
+        let t2: Vector2 = new Vector2();
 
-        Vector2.add(
-            temp,
-            Vector2.multiplyScalar(v1, Math.sin((1.0 - t) * angle)),
-            Vector2.multiplyScalar(v2, Math.sin(t * angle)))
+        Vector2.multiplyScalar(t1, v1, Math.sin((1.0 - t) * angle));
+        Vector2.multiplyScalar(t2, v2, Math.sin(t * angle));
 
-        r.assign(Vector2.divideScalar(temp, Math.sin(angle)));
+        Vector2.add(r, t1, t2);
+        Vector2.divideScalar(r, r, Math.sin(angle));
     } 
 }

@@ -32,8 +32,8 @@ var Vector2 = (function () {
         this.x = v.x;
         this.y = v.y;
     };
-    Vector2.dot = function (vector1, vector2) {
-        return (vector1.x * vector2.x) + (vector1.y * vector2.y);
+    Vector2.dot = function (v1, v2) {
+        return v1.x * v2.x + v1.y * v2.y;
     };
     Vector2.add = function (r, v1, v2) {
         r.x = v1.x + v2.x;
@@ -43,26 +43,21 @@ var Vector2 = (function () {
         r.x = v1.x - v2.x;
         r.y = v1.y - v2.y;
     };
-    Vector2.addAssignScalar = function (vector, scalar) {
-        vector.x += scalar;
-        vector.y += scalar;
-        return vector;
+    Vector2.addScalar = function (r, v, s) {
+        r.x = v.x + s;
+        r.y = v.y + s;
     };
-    Vector2.subtractAssignScalar = function (vector, scalar) {
-        vector.x -= scalar;
-        vector.y -= scalar;
-        return vector;
+    Vector2.subtractScalar = function (r, v, s) {
+        r.x = v.x - s;
+        r.y = v.y - s;
     };
-    Vector2.multiplyScalar = function (vector, scalar) {
-        return new Vector2(vector.x * scalar, vector.y * scalar);
+    Vector2.divideScalar = function (r, v, s) {
+        r.x = v.x / s;
+        r.y = v.y / s;
     };
-    Vector2.divideScalar = function (vector, scalar) {
-        return new Vector2(vector.x / scalar, vector.y / scalar);
-    };
-    Vector2.multiplyAssignScalar = function (vector, scalar) {
-        vector.x *= scalar;
-        vector.y *= scalar;
-        return vector;
+    Vector2.multiplyScalar = function (r, v, s) {
+        r.x = v.x * s;
+        r.y = v.y * s;
     };
     Vector2.angleBetween = function (vector1, vector2) {
         return Math.acos(Vector2.dot(vector1, vector2) /
@@ -70,13 +65,17 @@ var Vector2 = (function () {
     };
     Vector2.lerp = function (r, v1, v2, t) {
         Vector2.subtract(r, v2, v1);
-        Vector2.add(r, v1, Vector2.multiplyAssignScalar(r, t));
+        Vector2.multiplyScalar(r, r, t);
+        Vector2.add(r, v1, r);
     };
     Vector2.slerp = function (r, v1, v2, t) {
         var angle = Vector2.angleBetween(v1, v2);
-        var temp = new Vector2();
-        Vector2.add(temp, Vector2.multiplyScalar(v1, Math.sin((1.0 - t) * angle)), Vector2.multiplyScalar(v2, Math.sin(t * angle)));
-        r.assign(Vector2.divideScalar(temp, Math.sin(angle)));
+        var t1 = new Vector2();
+        var t2 = new Vector2();
+        Vector2.multiplyScalar(t1, v1, Math.sin((1.0 - t) * angle));
+        Vector2.multiplyScalar(t2, v2, Math.sin(t * angle));
+        Vector2.add(r, t1, t2);
+        Vector2.divideScalar(r, r, Math.sin(angle));
     };
     return Vector2;
 }());
