@@ -6,8 +6,8 @@ class Vector2Timepoint extends Timepoint {
         value: Vector2,
         next: Vector2Timepoint = null,
         prev: Vector2Timepoint = null) {
-        super(time, next, prev);
 
+        super(time, next, prev);
         this.value = value;
     }
 }

@@ -9,6 +9,25 @@ var Quad = (function () {
         this.rotation = new Vector2(1, 0);
         this.scale = new Vector2(1, 1);
         this.transform2Animator = new TwoDimTransformAnimator(null, this);
+        var timeline1 = new Vector2Timeline();
+        timeline1.createPoint(0, new Vector2(0, 0));
+        timeline1.createPoint(2, new Vector2(250, 0));
+        timeline1.createPoint(4, new Vector2(-250, 0));
+        timeline1.createPoint(5, new Vector2(50, 0));
+        timeline1.createPoint(7, new Vector2(-200, 50));
+        timeline1.createPoint(9, new Vector2(50, 100));
+        var timeline2 = new Vector2Timeline();
+        timeline2.createPoint(0, new Vector2(0, 0));
+        timeline2.createPoint(4, new Vector2(2, 2));
+        timeline2.createPoint(8, new Vector2(-2, -2));
+        var timeline3 = new Vector2Timeline();
+        var a3 = 45 * Math.PI / 180;
+        var a4 = -90 * Math.PI / 180;
+        timeline3.createPoint(0, new Vector2(1.0, 0.0));
+        timeline3.createPoint(10, new Vector2(Math.cos(a3), Math.sin(a3)));
+        this.transform2Animator.positionTransformController.timeline = timeline1;
+        this.transform2Animator.rotationTransformController.timeline = timeline3;
+        this.transform2Animator.scaleTransformController.timeline = timeline2;
     }
     Quad.prototype.containsMousePointer = function (mousePointerPosition) {
         var upperLeftCorner = this.position;

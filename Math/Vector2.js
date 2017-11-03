@@ -60,8 +60,7 @@ var Vector2 = (function () {
         r.y = v.y * s;
     };
     Vector2.angleBetween = function (vector1, vector2) {
-        return Math.acos(Vector2.dot(vector1, vector2) /
-            (vector1.magnitude() * vector2.magnitude()));
+        return Math.acos(Vector2.dot(vector1, vector2) / (vector1.magnitude() * vector2.magnitude()));
     };
     Vector2.lerp = function (r, v1, v2, t) {
         Vector2.subtract(r, v2, v1);

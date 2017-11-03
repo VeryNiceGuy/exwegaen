@@ -81,8 +81,7 @@
     }
 
     static angleBetween(vector1: Vector2, vector2: Vector2): number {
-        return Math.acos(Vector2.dot(vector1, vector2) /
-            (vector1.magnitude() * vector2.magnitude()));
+        return Math.acos(Vector2.dot(vector1, vector2) / (vector1.magnitude() * vector2.magnitude()));
     }
 
     static lerp(r: Vector2, v1: Vector2, v2: Vector2, t: number): void {
