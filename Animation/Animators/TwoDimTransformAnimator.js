@@ -32,9 +32,12 @@ var TwoDimTransformAnimator = (function () {
         this.positionTransformController =
             new Vector2DispController(timeline1, transformable.position);
         this.rotationTransformController =
-            new Vector2AngDispController(timeline3, transformable.rotation);
+            new Vector2AngController(timeline3, transformable.rotation);
         this.scaleTransformController =
             new Vector2DispController(timeline2, transformable.scale);
+        this.positionTransformController.initialize();
+        this.rotationTransformController.initialize();
+        this.scaleTransformController.initialize();
         this.go = false;
     }
     TwoDimTransformAnimator.prototype.startAnimation = function () {
@@ -49,9 +52,9 @@ var TwoDimTransformAnimator = (function () {
         this.positionTransformController.update(this.elapsedTime);
         this.rotationTransformController.update(this.elapsedTime);
         this.scaleTransformController.update(this.elapsedTime);
-        Vector2.assign(this.transformable.position, this.positionTransformController.transformedInterpolated);
-        Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
-        Vector2.assign(this.transformable.scale, this.scaleTransformController.transformedInterpolated);
+        //Vector2.assign(this.transformable.position, this.positionTransformController.transformedInterpolated);
+        //Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
+        //Vector2.assign(this.transformable.scale, this.scaleTransformController.transformedInterpolated);
     };
     return TwoDimTransformAnimator;
 }());

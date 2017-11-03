@@ -6,9 +6,11 @@ var Vector2 = (function () {
         this.y = y;
     }
     Vector2.rotate = function (angle, pivot, vector) {
-        var vectorRelativeToPivot = Vector2.subtract(vector, pivot);
+        var vectorRelativeToPivot = new Vector2();
+        Vector2.subtract(vectorRelativeToPivot, vector, pivot);
         var rotatedVector = new Vector2(vectorRelativeToPivot.x * angle.x - vectorRelativeToPivot.y * angle.y, vectorRelativeToPivot.y * angle.x + vectorRelativeToPivot.x * angle.y);
-        return Vector2.add(rotatedVector, pivot);
+        Vector2.add(rotatedVector, rotatedVector, pivot);
+        return rotatedVector;
     };
     Vector2.complexMultiply = function (r, v1, v2) {
         var x = v1.x * v2.x - v1.y * v2.y;
@@ -26,34 +28,25 @@ var Vector2 = (function () {
     Vector2.prototype.magnitude = function () {
         return Math.sqrt((this.x * this.x) + (this.y * this.y));
     };
+    Vector2.prototype.assign = function (v) {
+        this.x = v.x;
+        this.y = v.y;
+    };
     Vector2.dot = function (vector1, vector2) {
         return (vector1.x * vector2.x) + (vector1.y * vector2.y);
     };
-    Vector2.assign = function (vector1, vector2) {
-        vector1.x = vector2.x;
-        vector1.y = vector2.y;
-        return vector1;
+    Vector2.add = function (r, v1, v2) {
+        r.x = v1.x + v2.x;
+        r.y = v1.y + v2.y;
     };
-    Vector2.add = function (vector1, vector2) {
-        return new Vector2(vector1.x + vector2.x, vector1.y + vector2.y);
-    };
-    Vector2.addAssign = function (vector1, vector2) {
-        vector1.x += vector2.x;
-        vector1.y += vector2.y;
-        return vector1;
+    Vector2.subtract = function (r, v1, v2) {
+        r.x = v1.x - v2.x;
+        r.y = v1.y - v2.y;
     };
     Vector2.addAssignScalar = function (vector, scalar) {
         vector.x += scalar;
         vector.y += scalar;
         return vector;
-    };
-    Vector2.subtract = function (vector1, vector2) {
-        return new Vector2(vector1.x - vector2.x, vector1.y - vector2.y);
-    };
-    Vector2.subtractAssign = function (vector1, vector2) {
-        vector1.x -= vector2.x;
-        vector1.y -= vector2.y;
-        return vector1;
     };
     Vector2.subtractAssignScalar = function (vector, scalar) {
         vector.x -= scalar;
@@ -75,12 +68,15 @@ var Vector2 = (function () {
         return Math.acos(Vector2.dot(vector1, vector2) /
             (vector1.magnitude() * vector2.magnitude()));
     };
-    Vector2.lerp = function (vector1, vector2, t) {
-        return Vector2.add(vector1, Vector2.multiplyAssignScalar(Vector2.subtract(vector2, vector1), t));
+    Vector2.lerp = function (r, v1, v2, t) {
+        Vector2.subtract(r, v2, v1);
+        Vector2.add(r, v1, Vector2.multiplyAssignScalar(r, t));
     };
-    Vector2.slerp = function (vector1, vector2, t) {
-        var angle = Vector2.angleBetween(vector1, vector2);
-        return Vector2.divideScalar(Vector2.add(Vector2.multiplyScalar(vector1, Math.sin((1.0 - t) * angle)), Vector2.multiplyScalar(vector2, Math.sin(t * angle))), Math.sin(angle));
+    Vector2.slerp = function (r, v1, v2, t) {
+        var angle = Vector2.angleBetween(v1, v2);
+        var temp = new Vector2();
+        Vector2.add(temp, Vector2.multiplyScalar(v1, Math.sin((1.0 - t) * angle)), Vector2.multiplyScalar(v2, Math.sin(t * angle)));
+        r.assign(Vector2.divideScalar(temp, Math.sin(angle)));
     };
     return Vector2;
 }());

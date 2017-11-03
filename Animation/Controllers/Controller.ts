@@ -1,34 +1,30 @@
 abstract class Controller {
-    private timeline: Timeline;
-    private p1: Timepoint;
-    private p2: Timepoint;
-
-    protected abstract interpolateBetweenPoints(p1: Timepoint, p2:Timepoint, t: number): void;
-    protected abstract transitToNextSegment(p1: Timepoint, p2: Timepoint): void;
-    protected abstract transitToPrevSegment(p1: Timepoint, p2: Timepoint): void;
-
-    private static clamp(v: number, l: number, h: number): number {
-        if(v < l) {
-            return l;
-        } else if(v > h) {
-            return h;
-        } else {
-            return v;
-        }
-    }
+    private tl: Timeline;
+    protected p1: Timepoint;
+    protected p2: Timepoint;
 
     constructor(timeline: Timeline) {
         this.timeline = timeline;
-        this.p1 = this.timeline.getFirstPoint();
-        this.p2 = this.p1.next;
     }
+
+    get timeline() {
+        return this.tl;
+    }
+
+    set timeline(timeline: Timeline) {
+        this.tl = timeline;
+    }
+
+    protected abstract prepare(): void;
+    protected abstract interpolate(t: number): void;
+    protected abstract stepForward(): void;
+    protected abstract stepBackward(): void;
 
     private traverseForward(time: number): void {
         do {
             this.p1 = this.p2;
             this.p2 = this.p2.next;
-
-            this.transitToNextSegment(this.p1, this.p2);
+            this.stepForward();
         } while(this.p2.time < time);
     }
 
@@ -36,14 +32,18 @@ abstract class Controller {
         do {
             this.p1 = this.p1.prev;
             this.p2 = this.p1;
-
-            this.transitToPrevSegment(this.p1, this.p2);
+            this.stepBackward();
         } while(this.p1.time > time);
     }
 
+    initialize(): void {
+        this.p1 = this.tl.getFirstPoint();
+        this.p2 = this.p1.next;
+        this.prepare();
+    }
+
     update(time: number): void {
-        time = Controller.clamp(
-            time, 0, this.timeline.getLastPoint().time);
+        time = clamp(time, 0, this.tl.getLastPoint().time);
 
         if(time > this.p2.time) {
             this.traverseForward(time);
@@ -51,7 +51,6 @@ abstract class Controller {
             this.traverseBackward(time);
         }
 
-        this.interpolateBetweenPoints(
-            this.p1, this.p2,(time - this.p1.time) / (this.p2.time - this.p1.time));
+        this.interpolate((time - this.p1.time) / (this.p2.time - this.p1.time));
     }
 }

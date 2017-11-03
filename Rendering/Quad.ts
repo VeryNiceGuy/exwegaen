@@ -32,7 +32,9 @@
 
     containsMousePointer(mousePointerPosition: Vector2): boolean {
         let upperLeftCorner: Vector2 = this.position;
-        let lowerRightCorner: Vector2 = Vector2.add(upperLeftCorner, new Vector2(this.width, this.height));
+        let lowerRightCorner: Vector2 = new Vector2();
+
+        Vector2.add(lowerRightCorner, upperLeftCorner, new Vector2(this.width, this.height));
 
         if (mousePointerPosition.x >= upperLeftCorner.x &&
             mousePointerPosition.y >= upperLeftCorner.y &&
@@ -71,22 +73,22 @@
 
         let screenCenter: Vector2 = new Vector2(screenWidth * 0.5, screenHeight * 0.5);
 
-        p0 = Vector2.subtract(p0, screenCenter);
+        Vector2.subtract(p0, p0, screenCenter);
         p0.x /= screenCenter.x;
         p0.y /= screenCenter.y;
         p0.y *= -1.0;
 
-        p1 = Vector2.subtract(p1, screenCenter);
+        Vector2.subtract(p1, p1, screenCenter);
         p1.x /= screenCenter.x;
         p1.y /= screenCenter.y;
         p1.y *= -1.0;
 
-        p2 = Vector2.subtract(p2, screenCenter);
+        Vector2.subtract(p2,p2, screenCenter);
         p2.x /= screenCenter.x;
         p2.y /= screenCenter.y;
         p2.y *= -1.0;
 
-        p3 = Vector2.subtract(p3, screenCenter);
+        Vector2.subtract(p3,p3, screenCenter);
         p3.x /= screenCenter.x;
         p3.y /= screenCenter.y;
         p3.y *= -1.0;

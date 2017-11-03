@@ -8,12 +8,16 @@
     }
 
     static rotate(angle: Vector2, pivot: Vector2, vector: Vector2): Vector2 {
-        let vectorRelativeToPivot: Vector2 = Vector2.subtract(vector, pivot);
+        let vectorRelativeToPivot: Vector2 = new Vector2();
+        Vector2.subtract(vectorRelativeToPivot, vector, pivot);
+
         let rotatedVector: Vector2 = new Vector2(
             vectorRelativeToPivot.x * angle.x - vectorRelativeToPivot.y * angle.y,
             vectorRelativeToPivot.y * angle.x + vectorRelativeToPivot.x * angle.y
         );
-        return Vector2.add(rotatedVector, pivot);
+        Vector2.add(rotatedVector, rotatedVector, pivot);
+
+        return rotatedVector;
     }
 
     static complexMultiply(r: Vector2, v1: Vector2, v2: Vector2): void {
@@ -38,26 +42,23 @@
         return Math.sqrt((this.x * this.x) + (this.y * this.y));
     }
 
+    assign(v: Vector2): void {
+        this.x = v.x;
+        this.y = v.y;
+    }
+
     static dot(vector1: Vector2, vector2: Vector2): number {
         return (vector1.x * vector2.x) + (vector1.y * vector2.y);
     }
 
-    static assign(vector1: Vector2, vector2: Vector2): Vector2 {
-        vector1.x = vector2.x;
-        vector1.y = vector2.y;
-
-        return vector1;
+    static add(r: Vector2, v1: Vector2, v2: Vector2): void {
+        r.x = v1.x + v2.x;
+        r.y = v1.y + v2.y;
     }
 
-    static add(vector1: Vector2, vector2: Vector2): Vector2 {
-        return new Vector2(vector1.x + vector2.x, vector1.y + vector2.y);
-    }
-
-    static addAssign(vector1: Vector2, vector2: Vector2): Vector2 {
-        vector1.x += vector2.x;
-        vector1.y += vector2.y;
-
-        return vector1;
+    static subtract(r: Vector2, v1: Vector2, v2: Vector2): void {
+        r.x = v1.x - v2.x;
+        r.y = v1.y - v2.y;
     }
 
     static addAssignScalar(vector: Vector2, scalar: number): Vector2 {
@@ -65,17 +66,6 @@
         vector.y += scalar;
 
         return vector;
-    }
-
-    static subtract(vector1: Vector2, vector2: Vector2): Vector2 {
-        return new Vector2(vector1.x - vector2.x, vector1.y - vector2.y);
-    }
-
-    static subtractAssign(vector1: Vector2, vector2: Vector2): Vector2 {
-        vector1.x -= vector2.x;
-        vector1.y -= vector2.y;
-
-        return vector1;
     }
 
     static subtractAssignScalar(vector: Vector2, scalar: number): Vector2 {
@@ -105,15 +95,20 @@
             (vector1.magnitude() * vector2.magnitude()));
     }
 
-    static lerp(vector1: Vector2, vector2: Vector2, t: number): Vector2 {
-        return Vector2.add(vector1, Vector2.multiplyAssignScalar(Vector2.subtract(vector2, vector1), t));
+    static lerp(r: Vector2, v1: Vector2, v2: Vector2, t: number): void {
+        Vector2.subtract(r, v2, v1);
+        Vector2.add(r, v1, Vector2.multiplyAssignScalar(r, t));
     }
 
-    static slerp(vector1: Vector2, vector2: Vector2, t: number): Vector2 {
-        let angle: number = Vector2.angleBetween(vector1, vector2);
+    static slerp(r: Vector2, v1: Vector2, v2: Vector2, t: number): void {
+        let angle: number = Vector2.angleBetween(v1, v2);
+        let temp: Vector2 = new Vector2();
 
-        return Vector2.divideScalar(Vector2.add(
-            Vector2.multiplyScalar(vector1, Math.sin((1.0 - t) * angle)),
-            Vector2.multiplyScalar(vector2, Math.sin(t * angle))), Math.sin(angle));
+        Vector2.add(
+            temp,
+            Vector2.multiplyScalar(v1, Math.sin((1.0 - t) * angle)),
+            Vector2.multiplyScalar(v2, Math.sin(t * angle)))
+
+        r.assign(Vector2.divideScalar(temp, Math.sin(angle)));
     } 
 }

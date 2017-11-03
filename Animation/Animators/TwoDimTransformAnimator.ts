@@ -24,9 +24,9 @@ class TwoDimTransformAnimator {
     startTime: number;
     elapsedTime: number;
 
-    positionTransformController: Vector2Controller;
-    rotationTransformController: Vector2Controller;
-    scaleTransformController: Vector2Controller;
+    positionTransformController: Vector2DispController;
+    rotationTransformController: Vector2AngController;
+    scaleTransformController: Vector2DispController;
 
     go: boolean;
 
@@ -61,12 +61,16 @@ class TwoDimTransformAnimator {
                 timeline1, transformable.position);
 
         this.rotationTransformController =
-            new Vector2AngDispController(
+            new Vector2AngController(
                 timeline3, transformable.rotation);
 
         this.scaleTransformController =
             new Vector2DispController(
                 timeline2, transformable.scale);
+
+        this.positionTransformController.initialize();
+        this.rotationTransformController.initialize();
+        this.scaleTransformController.initialize();
 
         this.go = false;
     }
@@ -86,8 +90,8 @@ class TwoDimTransformAnimator {
         this.rotationTransformController.update(this.elapsedTime);
         this.scaleTransformController.update(this.elapsedTime);
 
-        Vector2.assign(this.transformable.position, this.positionTransformController.transformedInterpolated);
-        Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
-        Vector2.assign(this.transformable.scale, this.scaleTransformController.transformedInterpolated);
+        //Vector2.assign(this.transformable.position, this.positionTransformController.transformedInterpolated);
+        //Vector2.assign(this.transformable.rotation, this.rotationTransformController.transformedInterpolated);
+        //Vector2.assign(this.transformable.scale, this.scaleTransformController.transformedInterpolated);
     }
 }
