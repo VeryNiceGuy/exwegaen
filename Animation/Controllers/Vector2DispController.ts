@@ -14,11 +14,12 @@ class Vector2DispController extends Controller {
     constructor(timeline: Vector2Timeline, value: Vector2) {
         super(timeline);
         this.value = value;
+        this.v1 = new Vector2();
+        this.v2 = new Vector2();
     }
 
     protected prepare(): void {
-        this.v1 = new Vector2(this.value.x, this.value.y);
-        this.v2 = new Vector2();
+        this.v1.assign(this.value);
         Vector2.add(this.v2, this.v1, (this.p2 as Vector2Timepoint).value);
     }
 
