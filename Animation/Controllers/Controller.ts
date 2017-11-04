@@ -1,18 +1,10 @@
 abstract class Controller {
-    private tl: Timeline;
+    public timeline: Timeline;
     protected p1: Timepoint;
     protected p2: Timepoint;
 
     constructor(timeline: Timeline) {
         this.timeline = timeline;
-    }
-
-    get timeline() {
-        return this.tl;
-    }
-
-    set timeline(timeline: Timeline) {
-        this.tl = timeline;
     }
 
     protected abstract prepare(): void;
@@ -24,6 +16,7 @@ abstract class Controller {
         do {
             this.p1 = this.p2;
             this.p2 = this.p2.next;
+
             this.stepForward();
         } while(this.p2.time < time);
     }
@@ -32,18 +25,20 @@ abstract class Controller {
         do {
             this.p1 = this.p1.prev;
             this.p2 = this.p1;
+
             this.stepBackward();
         } while(this.p1.time > time);
     }
 
     initialize(): void {
-        this.p1 = this.tl.getFirstPoint();
+        this.p1 = this.timeline.getFirstPoint();
         this.p2 = this.p1.next;
+
         this.prepare();
     }
 
     update(time: number): void {
-        time = clamp(time, 0, this.tl.getLastPoint().time);
+        time = clamp(time, 0, this.timeline.getLastPoint().time);
 
         if(time > this.p2.time) {
             this.traverseForward(time);

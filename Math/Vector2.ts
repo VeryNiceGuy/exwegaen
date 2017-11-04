@@ -20,7 +20,7 @@
         return rotatedVector;
     }
 
-    static complexMultiply(r: Vector2, v1: Vector2, v2: Vector2): void {
+    static addAngle(r: Vector2, v1: Vector2, v2: Vector2): void {
         const x: number = v1.x * v2.x - v1.y * v2.y;
         const y: number = v1.x * v2.y + v2.x * v1.y;
 
@@ -28,7 +28,7 @@
         r.y = y;
     }
 
-    static complexDivide(r: Vector2, v1: Vector2, v2: Vector2): void {
+    static subtractAngle(r: Vector2, v1: Vector2, v2: Vector2): void {
         const y2: number = -v2.y;
 
         const x: number = v1.x * v2.x - v1.y * y2;

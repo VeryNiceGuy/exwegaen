@@ -12,13 +12,13 @@ var Vector2 = (function () {
         Vector2.add(rotatedVector, rotatedVector, pivot);
         return rotatedVector;
     };
-    Vector2.complexMultiply = function (r, v1, v2) {
+    Vector2.addAngle = function (r, v1, v2) {
         var x = v1.x * v2.x - v1.y * v2.y;
         var y = v1.x * v2.y + v2.x * v1.y;
         r.x = x;
         r.y = y;
     };
-    Vector2.complexDivide = function (r, v1, v2) {
+    Vector2.subtractAngle = function (r, v1, v2) {
         var y2 = -v2.y;
         var x = v1.x * v2.x - v1.y * y2;
         var y = v1.x * y2 + v2.x * v1.y;
