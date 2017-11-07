@@ -1,51 +1,50 @@
 abstract class Controller {
-    public timeline: Timeline;
-    protected p1: Timepoint;
-    protected p2: Timepoint;
+    protected p1: number;
+    protected p2: number;
 
-    constructor(timeline: Timeline) {
-        this.timeline = timeline;
-    }
+    constructor() {}
 
     protected abstract prepare(): void;
     protected abstract interpolate(t: number): void;
     protected abstract stepForward(): void;
     protected abstract stepBackward(): void;
 
-    private traverseForward(time: number): void {
-        do {
-            this.p1 = this.p2;
-            this.p2 = this.p2.next;
+    protected abstract getPointTime(i: number): number;
+    protected abstract getNumPoints(): number;
 
+    private searchForward(time: number): void {
+        do {
+            this.p1 = this.p2++;
             this.stepForward();
-        } while(this.p2.time < time);
+        } while(this.getPointTime(this.p2) < time);
     }
 
-    private traverseBackward(time: number): void {
+    private searchBackward(time: number): void {
         do {
-            this.p1 = this.p1.prev;
-            this.p2 = this.p1;
-
+            this.p2 = this.p1--;
             this.stepBackward();
-        } while(this.p1.time > time);
+        } while(this.getPointTime(this.p1) > time);
     }
 
     initialize(): void {
-        this.p1 = this.timeline.getFirstPoint();
-        this.p2 = this.p1.next;
+        this.p1 = 0;
+        this.p2 = 1;
 
         this.prepare();
     }
 
     update(time: number): void {
-        time = clamp(time, 0, this.timeline.getLastPoint().time);
+        time = clamp(time, 0, this.getPointTime(this.getNumPoints()-1));
 
-        if(time > this.p2.time) {
-            this.traverseForward(time);
-        } else if(time < this.p1.time) {
-            this.traverseBackward(time);
+        if(time > this.getPointTime(this.p2)) {
+            this.searchForward(time);
+        } else if(time < this.getPointTime(this.p1)) {
+            this.searchBackward(time);
         }
 
-        this.interpolate((time - this.p1.time) / (this.p2.time - this.p1.time));
+        this.interpolate(
+            (time - this.getPointTime(this.p1)) /
+            (this.getPointTime(this.p2) -
+                this.getPointTime(this.p1)));
     }
 }

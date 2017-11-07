@@ -25,9 +25,9 @@ var Quad = (function () {
         var a4 = -90 * Math.PI / 180;
         timeline3.createPoint(0, new Vector2(1.0, 0.0));
         timeline3.createPoint(10, new Vector2(Math.cos(a3), Math.sin(a3)));
-        this.transform2Animator.positionTransformController.timeline = timeline1;
-        this.transform2Animator.rotationTransformController.timeline = timeline3;
-        this.transform2Animator.scaleTransformController.timeline = timeline2;
+        this.transform2Animator.positionTransformController.points = timeline1.points;
+        this.transform2Animator.rotationTransformController.points = timeline3.points;
+        this.transform2Animator.scaleTransformController.points = timeline2.points;
     }
     Quad.prototype.containsMousePointer = function (mousePointerPosition) {
         var upperLeftCorner = this.position;
