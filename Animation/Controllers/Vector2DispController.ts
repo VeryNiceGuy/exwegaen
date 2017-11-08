@@ -1,6 +1,6 @@
 class Vector2DispController extends Vector2Controller {
-    constructor(timeline: Vector2Timeline, controllable: Vector2) {
-        super(timeline, controllable);
+    constructor(points: Vector2Timepoint[], controllable: Vector2) {
+        super(points, controllable);
     }
 
     protected prepare(): void {

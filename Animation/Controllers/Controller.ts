@@ -2,13 +2,10 @@ abstract class Controller {
     protected p1: number;
     protected p2: number;
 
-    constructor() {}
-
     protected abstract prepare(): void;
     protected abstract interpolate(t: number): void;
     protected abstract stepForward(): void;
     protected abstract stepBackward(): void;
-
     protected abstract getPointTime(i: number): number;
     protected abstract getNumPoints(): number;
 

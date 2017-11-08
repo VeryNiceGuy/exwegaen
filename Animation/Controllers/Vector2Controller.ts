@@ -5,7 +5,7 @@ abstract class Vector2Controller extends Controller {
     protected v1: Vector2;
     protected v2: Vector2;
 
-    protected getPointTime(i:number):number{
+    protected getPointTime(i:number): number{
         return this.points[i].time;
     }
 
@@ -13,8 +13,9 @@ abstract class Vector2Controller extends Controller {
         return this.points.length;
     }
 
-    constructor(timeline: Timeline, controllable: Vector2) {
+    constructor(points: Vector2Timepoint[], controllable: Vector2) {
         super();
+        this.points = points;
         this.controllable = controllable;
         this.v1 = new Vector2();
         this.v2 = new Vector2();
