@@ -36,5 +36,9 @@ abstract class Animator {
     protected abstract prepare(): void;
     protected abstract stepForward(): void;
     protected abstract stepBackward(): void;
-    protected abstract update(time: number): void;
+
+    protected update(time: number): void {
+        time = clamp(time, 0, this.getPointTime(this.getNumPoints()-1));
+        this.findSegment(time);
+    }
 }
