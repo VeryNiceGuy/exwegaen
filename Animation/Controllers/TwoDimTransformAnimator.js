@@ -14,9 +14,9 @@ var TwoDimTransformAnimator = (function () {
         this.animation = animation;
         this.transformable = transformable;
         this.animating = false;
-        this.positionTransformController = new Vector2DispController(null, transformable.position);
-        this.rotationTransformController = new Vector2AngController(null, transformable.rotation);
-        this.scaleTransformController = new Vector2DispController(null, transformable.scale);
+        this.positionTransformController = new Vector2DispAnimator(null, transformable.position);
+        this.rotationTransformController = new Vector2AngAnimator(null, transformable.rotation);
+        this.scaleTransformController = new Vector2DispAnimator(null, transformable.scale);
     }
     TwoDimTransformAnimator.prototype.startAnimation = function () {
         this.animating = true;

@@ -24,9 +24,9 @@ class TwoDimTransformAnimator {
     startTime: number;
     elapsedTime: number;
 
-    positionTransformController: Vector2DispController;
-    rotationTransformController: Vector2AngController;
-    scaleTransformController: Vector2DispController;
+    positionTransformController: Vector2DispAnimator;
+    rotationTransformController: Vector2AngAnimator;
+    scaleTransformController: Vector2DispAnimator;
 
     animating: boolean;
 
@@ -35,9 +35,9 @@ class TwoDimTransformAnimator {
         this.transformable = transformable;
         this.animating = false;
 
-        this.positionTransformController = new Vector2DispController(null, transformable.position);
-        this.rotationTransformController = new Vector2AngController(null, transformable.rotation);
-        this.scaleTransformController = new Vector2DispController(null, transformable.scale);
+        this.positionTransformController = new Vector2DispAnimator(null, transformable.position);
+        this.rotationTransformController = new Vector2AngAnimator(null, transformable.rotation);
+        this.scaleTransformController = new Vector2DispAnimator(null, transformable.scale);
     }
 
     startAnimation(): void {

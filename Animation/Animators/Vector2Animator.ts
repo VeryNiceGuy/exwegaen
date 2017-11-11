@@ -1,22 +1,24 @@
-abstract class Vector2Controller extends Controller {
+abstract class Vector2Animator extends InterpAnimator {
     public points: Vector2Timepoint[];
-    public controllable: Vector2;
+    public animatable: Vector2;
 
     protected v1: Vector2;
     protected v2: Vector2;
-
-    protected getPointTime(i:number): number{
-        return this.points[i].time;
-    }
 
     protected getNumPoints(): number {
         return this.points.length;
     }
 
-    constructor(points: Vector2Timepoint[], controllable: Vector2) {
+    protected getPointTime(i: number): number{
+        return this.points[i].time;
+    }
+
+    constructor(points: Vector2Timepoint[], animatable: Vector2) {
         super();
+
         this.points = points;
-        this.controllable = controllable;
+        this.animatable = animatable;
+
         this.v1 = new Vector2();
         this.v2 = new Vector2();
     }
