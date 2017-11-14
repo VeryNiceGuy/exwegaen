@@ -3,7 +3,7 @@ class Vector2DispAnimator extends Vector2Animator {
         super(points, animatable);
     }
 
-    protected prepare(p1: number, p2: number): void {
+    protected firstSegment(p1: number, p2: number): void {
         this.v1.assign(this.animatable);
         Vector2.add(this.v2, this.v1, this.points[p2].value);
     }

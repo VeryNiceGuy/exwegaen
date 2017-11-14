@@ -1,11 +1,14 @@
 abstract class Animator {
     private p1: number;
     private p2: number;
+    private time: number;
+    private t: number;
 
     initialize(): void {
         this.p1 = 0;
         this.p2 = 1;
-        this.prepare(this.p1, this.p2);
+
+        this.firstSegment(this.p1, this.p2);
     }
 
     private searchForward(time: number): void {
@@ -33,19 +36,26 @@ abstract class Animator {
     abstract getNumPoints(): number;
     abstract getPointTime(i: number): number;
 
-    protected abstract prepare(p1: number, p2: number): void;
+    getFirstPointTime(): number {
+        return this.getPointTime(0);
+    }
+
+    getLastPointTime(): number {
+        return this.getPointTime(this.getNumPoints()-1);
+    }
+
+    protected abstract firstSegment(p1: number, p2: number): void;
     protected abstract stepForward(p1: number, p2: number): void;
     protected abstract stepBackward(p1: number, p2: number): void;
     protected abstract interpolate(p1: number, p2: number, t: number): void;
 
     update(time: number): void {
-        let lvTime: number = clamp(time, 0, this.getPointTime(this.getNumPoints()-1));
-        this.findSegment(lvTime);
+        this.time = clamp(time, 0, this.getLastPointTime());
+        this.findSegment(this.time);
 
-        let t: number =
-            (lvTime - this.getPointTime(this.p1)) /
-            (this.getPointTime(this.p2) - this.getPointTime(this.p1));
+        let t1: number = this.getPointTime(this.p1);
+        this.t = (this.time - t1) / (this.getPointTime(this.p2) - t1);
 
-        this.interpolate(this.p1, this.p2, t);
+        this.interpolate(this.p1, this.p2, this.t);
     }
 }
