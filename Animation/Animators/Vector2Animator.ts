@@ -1,15 +1,15 @@
-abstract class Vector2Animator extends InterpAnimator {
+abstract class Vector2Animator extends Animator {
     public points: Vector2Timepoint[];
     public animatable: Vector2;
 
     protected v1: Vector2;
     protected v2: Vector2;
 
-    protected getNumPoints(): number {
+    getNumPoints(): number {
         return this.points.length;
     }
 
-    protected getPointTime(i: number): number{
+    getPointTime(i: number): number{
         return this.points[i].time;
     }
 
